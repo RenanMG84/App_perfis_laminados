@@ -1,7 +1,6 @@
 import math
 from tkinter import *
-from tkinter.ttk import *
-from tkinter import ttk
+from tkinter.ttk import LabelFrame, Combobox, Button
 
 
 class Principal(Tk):
@@ -22,21 +21,18 @@ class Principal(Tk):
         self.frame_perfil = Frame_Perfil(self)
         self.frame_perfil.grid(row = 0, column = 0, columnspan=2 )
         self.solicitacoes = Solicitacoes(self)
-        self.solicitacoes.grid(row = 0 , column=3, pady= 5, padx = 10, sticky= 'w')
+        self.solicitacoes.grid(row = 0 , column=2, pady= 5, padx = 10, sticky= 'w')
         self.comp_barras = Comp_Barras(self)
-        self.comp_barras.grid(row = 1, column= 3, sticky='w', pady = 5, padx = 10)
-        self.aco = Aco(self)
-        self.aco.grid(row = 1, column= 0, padx = 10)
+        self.comp_barras.grid(row = 1, column= 2, sticky='w', pady = 5, padx = 10)
+        self.cb_ct = Cb_Ct(self)
+        self.cb_ct.grid(row = 2, column= 2, sticky='w', pady = 5, padx = 10)
+        self.prop_aco = Aco(self)
+        self.prop_aco.grid(row = 1, column= 0, padx = 10)
         self.frame_resul = Frame_Resultados(self)
-        self.frame_resul.grid(row = 2 , column= 3, pady = 5, padx = 10, sticky = 'w')
-        self.frame_botoes = Frame(self)
-        self.frame_botoes.grid(row = 2, column= 0)
-        self.btn_calc = Button(self.frame_botoes, text= 'Calcular', command=self.calcular)
-        self.btn_calc.grid(row= 0, column= 0)
-        self.btn_apagar = Button(self.frame_botoes, text= 'Apagar', command=self.apagar)
-        self.btn_apagar.grid(row=0, column=1)
-        self.btn_memorial = Button(self.frame_botoes, text= 'Gerar Memorial', command=self.memorial)
-        self.btn_memorial.grid(row=1, column=0, columnspan= 2, pady = 5)
+        self.frame_resul.grid(row = 3 , column= 2, pady = 5, padx = 10, sticky = 'w')
+        self.frame_botoes = Botoes(self)
+        self.frame_botoes.grid(row = 2, column= 0, rowspan= 3, columnspan= 2,pady = 30,  sticky='nsew')
+
     
     def calcular(self):
         #Limpa as entry de resultados no Frame Resultados
@@ -164,6 +160,50 @@ class Aco(Frame):
         self.entry_g.grid(row = 1, column= 3, padx= 5, pady = 5)
         self.entry_g.insert(0,"77000")
 
+class Cb_Ct(Frame):
+    def __init__(self, master = None):
+        super().__init__(master)
+        self.labelframe = LabelFrame(self, text= 'Coef. Ct e Cb', width= 250, height = 50)
+        self.labelframe.grid_propagate(False) 
+        self.labelframe.grid(row= 0 , column=  0)
+
+        self.label_cb = Label(self.labelframe, text= 'Cb')
+        self.label_cb.grid(row=0, column= 0, padx= (20,0))
+        self.entry_cb = Entry(self.labelframe, width= 9)
+        self.entry_cb.grid(row = 0, column= 1, padx= 3, pady = 5)
+        self.entry_cb.insert(0,"1")
+
+        self.label_ct = Label(self.labelframe, text= 'Ct')
+        self.label_ct.grid(row=0, column= 2, padx= (20,0))
+        self.entry_ct = Entry(self.labelframe, width= 9)
+        self.entry_ct.grid(row = 0, column= 3, padx= 3, pady = 5)
+        self.entry_ct.insert(0,"1")
+
+class Botoes(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master  # Guarda a instância de Principal
+
+        self.frame = Frame(self)
+        self.frame.grid(row=0, column=0, sticky='nsew')
+
+        # Configura a expansão das colunas e linhas para centralizar os botões
+        self.frame.columnconfigure(0, weight=1)
+        self.frame.columnconfigure(1, weight=1)
+        self.frame.rowconfigure(0, weight=1)
+        self.frame.rowconfigure(1, weight=1)
+
+        self.btn_calc = Button(self.frame, text='Calcular', command=self.master.calcular)
+        self.btn_calc.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
+
+        self.btn_apagar = Button(self.frame, text='Apagar', command=self.master.apagar)
+        self.btn_apagar.grid(row=0, column=1, sticky='nsew', padx=10, pady=10)
+
+        self.btn_memorial = Button(self.frame, text='Gerar Memorial', command=self.master.memorial)
+        self.btn_memorial.grid(row=1, column=0, columnspan=2, sticky='nsew', padx=10, pady=10)
+
+
+
 class Comp_Barras(Frame):
     def __init__(self, master = None):
         super().__init__(master)
@@ -190,7 +230,6 @@ class Comp_Barras(Frame):
         self.label_lb.grid(row = 1, column= 2, padx = (30,3))
         self.entry_lb = Entry(self.labelframe, width = 10)
         self.entry_lb.grid(row = 1, column= 3, pady = 3)
-
 
 class Frame_Perfil(Frame):
     def __init__(self, master = None,  frame_height=400, frame_width=400):
@@ -316,7 +355,7 @@ class Frame_Perfil(Frame):
         self.cmb_perfil.grid(row = 1, column=0, columnspan= 2, sticky='nsew')
         self.cmb_perfil.bind("<<ComboboxSelected>>", self.atualiza_prop)
 
-        self.btn_prop = ttk.Button(self, text='Propriedades', command=self.mostra_prop)
+        self.btn_prop = Button(self, text='Propriedades', command=self.mostra_prop)
         self.btn_prop.grid(row=2, column= 0, columnspan= 3, pady = 2, sticky='nsew' )
 
     def atualiza_prop(self, event):
@@ -609,7 +648,6 @@ class Momento_X:
 
         #Momento fletor resistente
         self.mxrd = min(self.mrd_alma, self.mrd_mesa, self.mrd_flt, self.mom_max)
-
 
 class Cortante_X:
     def __init__(self, dlinha, tw, fy, e):
