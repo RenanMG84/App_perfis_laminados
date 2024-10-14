@@ -1,7 +1,8 @@
 import math
 from tkinter import *
+from tkinter import messagebox
 from tkinter.ttk import LabelFrame, Combobox, Button
-
+from pylatex import Document, Section, Subsection, Math, NoEscape, Center
 
 class Principal(Tk):
     def __init__(self):
@@ -24,8 +25,8 @@ class Principal(Tk):
         self.solicitacoes.grid(row = 0 , column=2, pady= 5, padx = 10, sticky= 'w')
         self.comp_barras = Comp_Barras(self)
         self.comp_barras.grid(row = 1, column= 2, sticky='w', pady = 5, padx = 10)
-        self.cb_ct = Cb_Ct(self)
-        self.cb_ct.grid(row = 2, column= 2, sticky='w', pady = 5, padx = 10)
+        self.frame_cb = Frame_Cb(self)
+        self.frame_cb.grid(row = 2, column= 2, sticky='w', pady = 5, padx = 10)
         self.prop_aco = Aco(self)
         self.prop_aco.grid(row = 1, column= 0, padx = 10)
         self.frame_resul = Frame_Resultados(self)
@@ -44,16 +45,19 @@ class Principal(Tk):
         self.frame_resul.entry_mxrd.delete(0, END)
 
         #passa os valores dos entrys do aço para as variáveis globais do frame Principal
-        self.e = float(self.aco.entry_e.get())
-        self.g = float(self.aco.entry_g.get())
-        self.fy = float(self.aco.entry_fy.get())
-        self.fu = float(self.aco.entry_fu.get())
+        self.e = float(self.prop_aco.entry_e.get())
+        self.g = float(self.prop_aco.entry_g.get())
+        self.fy = float(self.prop_aco.entry_fy.get())
+        self.fu = float(self.prop_aco.entry_fu.get())
 
         #passa os valores dos entrys do comprimento da barra para as variáveis globais do frame principal
         self.lx = float(self.comp_barras.entry_lx.get())
         self.ly = float(self.comp_barras.entry_ly.get())
         self.lz = float(self.comp_barras.entry_lz.get())
         self.lb = float(self.comp_barras.entry_lb.get())
+
+        #pega o valor de cb
+        self.cb = float(self.frame_cb.entry_cb.get())
 
         #cria objetos para calculo e insere os resultados nos respectivos entrys
         #Tração
@@ -67,7 +71,7 @@ class Principal(Tk):
         self.frame_resul.entry_ncrd.insert(1,f"{self.calc_compressao.ncrd:.2f}")
 
         #Momento em X
-        self.calc_mom_x = Momento_X(self, self.e, self.g, self.fy, self.frame_perfil.zx, self.frame_perfil.wx, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
+        self.calc_mom_x = Momento_X(self.e, self.g, self.fy, self.frame_perfil.zx, self.frame_perfil.wx, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
                                     self.frame_perfil.dlinha, self.frame_perfil.tw, self.lb, self.frame_perfil.ry, self.cb, self.frame_perfil.iy, self.frame_perfil.cw)
         self.frame_resul.entry_mxrd.insert(1,f"{self.calc_mom_x.mxrd:.2f}")
 
@@ -89,9 +93,8 @@ class Principal(Tk):
         self.frame_resul.entry_myrd.delete(0, END)
 
     def memorial(self):
-        pass
-
-        
+        self.gerar_mem = Gerar_pdf(self.calc_tracao, self.calc_cort_x)   
+        self.gerar_mem.gerar()
 
 class Solicitacoes(Frame):
     def __init__(self, master = None):
@@ -160,24 +163,26 @@ class Aco(Frame):
         self.entry_g.grid(row = 1, column= 3, padx= 5, pady = 5)
         self.entry_g.insert(0,"77000")
 
-class Cb_Ct(Frame):
+class Frame_Cb(Frame):
     def __init__(self, master = None):
         super().__init__(master)
-        self.labelframe = LabelFrame(self, text= 'Coef. Ct e Cb', width= 250, height = 50)
+        self.labelframe = LabelFrame(self, text= 'Coef. Cb', width= 250, height = 50)
         self.labelframe.grid_propagate(False) 
         self.labelframe.grid(row= 0 , column=  0)
 
         self.label_cb = Label(self.labelframe, text= 'Cb')
         self.label_cb.grid(row=0, column= 0, padx= (20,0))
-        self.entry_cb = Entry(self.labelframe, width= 9)
+        self.entry_cb = Entry(self.labelframe, width= 5)
         self.entry_cb.grid(row = 0, column= 1, padx= 3, pady = 5)
         self.entry_cb.insert(0,"1")
 
+        """
         self.label_ct = Label(self.labelframe, text= 'Ct')
         self.label_ct.grid(row=0, column= 2, padx= (20,0))
         self.entry_ct = Entry(self.labelframe, width= 9)
         self.entry_ct.grid(row = 0, column= 3, padx= 3, pady = 5)
         self.entry_ct.insert(0,"1")
+        """
 
 class Botoes(Frame):
     def __init__(self, master=None):
@@ -202,8 +207,6 @@ class Botoes(Frame):
         self.btn_memorial = Button(self.frame, text='Gerar Memorial', command=self.master.memorial)
         self.btn_memorial.grid(row=1, column=0, columnspan=2, sticky='nsew', padx=10, pady=10)
 
-
-
 class Comp_Barras(Frame):
     def __init__(self, master = None):
         super().__init__(master)
@@ -214,21 +217,25 @@ class Comp_Barras(Frame):
         self.label_lx = Label(self.labelframe, text= 'Lx')
         self.label_lx.grid(row=0, column= 0, padx= (20,0))
         self.entry_lx = Entry(self.labelframe, width = 10)
+        self.entry_lx.insert(0, "300")
         self.entry_lx.grid(row = 0, column= 1, pady= 3, padx= 3)
 
         self.label_ly = Label(self.labelframe, text= 'Ly')
         self.label_ly.grid(row=1, column= 0, padx= (20,0))
         self.entry_ly = Entry(self.labelframe, width = 10)
+        self.entry_ly.insert(0, "300")
         self.entry_ly.grid(row = 1, column= 1, pady = 3)
 
         self.label_lz = Label(self.labelframe, text= 'Lz')
         self.label_lz.grid(row = 0, column= 2, padx = (30,3))
         self.entry_lz = Entry(self.labelframe, width = 10)
+        self.entry_lz.insert(0, "300")
         self.entry_lz.grid(row = 0, column= 3, pady = 3)
 
         self.label_lb = Label(self.labelframe, text= 'Lb')
         self.label_lb.grid(row = 1, column= 2, padx = (30,3))
         self.entry_lb = Entry(self.labelframe, width = 10)
+        self.entry_lb.insert(0, "300")
         self.entry_lb.grid(row = 1, column= 3, pady = 3)
 
 class Frame_Perfil(Frame):
@@ -663,9 +670,9 @@ class Cortante_X:
         #lambda da alma
         self.lambda_alma = self.dlinha / self.tw
         #lambda p
-        self.lambda_p = 1.10 * math.sqrt((5 + self.e) / self.fy)
+        self.lambda_p = 1.10 * math.sqrt((5 * self.e) / self.fy)
         #lambda q
-        self.lambda_r = 1.37 * math.sqrt((5 + self.e) / self.fy)
+        self.lambda_r = 1.37 * math.sqrt((5 * self.e) / self.fy)
 
         if self.lambda_alma <= self.lambda_p:
             self.vrd = self.vpl / 1.10
@@ -698,6 +705,118 @@ class Cortante_Y:
             self.vrd = (self.lambda_p / self.lambda_r) * (self.vpl / 1.10)
         elif self.lambda_alma > self.lambda_r:
             self.vrd = 1.24 * math.pow((self.lambda_p / self.lambda_alma), 2.0) * (self.vpl / 1.10)
+
+class Gerar_pdf:
+    def __init__(self, tracao_inst, cortantex_inst): #instancias das classes
+        self.tracao = tracao_inst
+        self.cortantex = cortantex_inst
+
+    def gerar(self):
+        # Define as margens do PDF
+        geometry_options = {
+        "top": "2cm",    # Margem superior
+        "bottom": "2cm", # Margem inferior
+        "left": "1.5cm", # Margem esquerda
+        "right": "1.5cm" # Margem direita
+    }
+
+        # Criar o documento LaTeX
+        doc = Document(geometry_options=geometry_options)
+        with doc.create(Center()):
+            doc.append(NoEscape(r"\textbf{\Large MEMORIAL DE CÁLCULO}"))
+
+    #TRAÇÃO----------------------------------------------------------
+        ag = self.tracao.ag
+        fy = self.tracao.fy  #kN/cm2
+        ntrd = self.tracao.ntrd
+
+        # Seção principal
+        with doc.create(Section("Cálculo de Tração")):
+            doc.append(f"")
+
+        # Cálculo da força resistente
+        with doc.create(Subsection("Cálculo da Força Resistente à Tração (Item 5.2.2)")):
+            doc.append("Força resistente à tração (escoamento da seção bruta):")
+            with doc.create(Math()):
+                doc.append(NoEscape(r'N_{{trd}} = \frac{{A_g \cdot f_y}}{1.10}'))
+                doc.append(NoEscape(r' = \frac{{%.2f \cdot %.2f}}{1.10}' % (ag, fy)))
+                doc.append(f"= {ntrd:.2f}  \u00A0  kN")
+        
+        #Cortante X----------------------------------------------------------------------------
+        self.dlinha = self.cortantex.dlinha  #cm
+        self.tw = self.cortantex.tw  #cm
+        self.aw = self.cortantex.aw #cm2
+        self.vpl = self.cortantex.vpl #kN
+        self.lamb_p = self.cortantex.lambda_p
+        self.lamb_r = self.cortantex.lambda_r
+        self.lambda_alma = self.cortantex.lambda_alma
+        self.e = self.cortantex.e #kN/cm2
+        self.fy = self.cortantex.fy #kN/cm2
+        self.vrd = self.cortantex.vrd #kN
+
+        # Seção principal
+        with doc.create(Section("Cálculo da Força Cortante Resistente")):
+            doc.append(f"")
+
+        # Cálculo da força resistente a cortante
+        with doc.create(Subsection("Cálculo da Força Resistente a Cortante em X (Item 5.4.3.1.1)")):
+            doc.append("Área efetiva de cisalhamento:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"A_w = d' \cdot t_w = (%.2f \cdot %.2f)" % (self.dlinha, self.tw)))
+                doc.append(NoEscape(f"= {self.aw:.2f}  \u00A0 {{cm}}^2"))  # LaTeX notation for cm²
+
+            doc.append("Força cortante de plastificação:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"V_{pl} = 0.6 \cdot A_w \cdot f_y"))
+                doc.append(NoEscape(r"= 0.6 \cdot %.2f \cdot %.2f" % (self.aw, self.fy)))
+                doc.append(NoEscape(f"= {self.vpl:.2f}  \u00A0 kN")) 
+
+            doc.append("Esbeltez do perfil:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\lambda = \frac{d'}{t_w}"))
+                doc.append(NoEscape(r"= \frac{%.2f}{%.2f}" % (self.dlinha, self.tw)))
+                doc.append(f"= {self.lambda_alma:.0f}")
+
+            doc.append("Lambda P:")
+            with doc.create(Math()):
+                lambda_p_formula = r'\lambda_p = 1.10 \cdot \sqrt{\frac{{k_v \cdot E}}{{f_y}}}'
+                doc.append(NoEscape(lambda_p_formula))
+                lambda_p_formula = r'= 1.10 \cdot \sqrt{\frac{{5 \cdot %.0f}}{{%.2f}}}' % (self.e, self.fy)
+                doc.append(NoEscape(lambda_p_formula))
+                doc.append(f"= {self.lamb_p:.2f}   \u00A0   kN")
+
+            doc.append("Lambda R:")
+            with doc.create(Math()):
+                lambda_r_formula = r'\lambda_r = 1.37 \cdot \sqrt{\frac{{k_v \cdot E}}{{f_y}}}'
+                doc.append(NoEscape(lambda_r_formula))
+                lambda_r_formula = r'= 1.37 \cdot \sqrt{\frac{{5 \cdot %.0f}}{{%.2f}}}' % (self.e, self.fy)
+                doc.append(NoEscape(lambda_r_formula))
+                doc.append(f"= {self.lamb_r:.2f}   \u00A0   kN")
+            self.lambda_alma = 100
+            doc.append("Força cortante resistente:")
+            if self.lambda_alma <= self.lamb_p:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'V_{rd} = \frac{V_{pl}}{1.10}'))
+                    doc.append(NoEscape(r' = \frac{%.2f}{1.10}' % (self.vpl)))
+                    doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
+            elif self.lambda_alma > self.lamb_p and self.lambda_alma <= self.lamb_r:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'V_{rd} = \frac{\lambda_p}{\lambda_r} \cdot \frac{V_{pl}}{1.10}'))
+                    doc.append(NoEscape(r' = \frac{%.0f}{%.0f} \cdot \frac{%.2f}{1.10}' % (self.lamb_p, self.lamb_r, self.vpl)))
+                    doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
+            elif self.lambda_alma > self.lamb_r:
+                #self.vrd = 1.24 * math.pow((self.lambda_p / self.lambda_alma), 2.0) * (self.vpl / 1.10)
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'V_{rd} = 1.24 \cdot \left(\frac{\lambda_p}{\lambda}\right)^2 \cdot \frac{V_{pl}}{1.10}'))
+                    doc.append(NoEscape(r' = 1.24 \cdot \left(\frac{%.0f}{%.0f}\right)^2 \cdot \frac{%.2f}{1.10}' %(self.lamb_p, self.lambda_alma, self.vpl)))
+                    doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
+
+
+
+
+        # Gerar o PDF
+        doc.generate_pdf("memorial", clean_tex=False)
+        messagebox.showinfo("Sucesso", "PDF gerado com sucesso!")
 
 def main():
     app = Principal()

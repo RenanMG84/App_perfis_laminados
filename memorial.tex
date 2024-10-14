@@ -1,0 +1,63 @@
+\documentclass{article}%
+\usepackage[T1]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lmodern}%
+\usepackage{textcomp}%
+\usepackage{lastpage}%
+\usepackage{geometry}%
+\geometry{top=2cm,bottom=2cm,left=1.5cm,right=1.5cm}%
+\usepackage{ragged2e}%
+\usepackage{amsmath}%
+%
+%
+%
+\begin{document}%
+\normalsize%
+\begin{center}%
+\textbf{\Large MEMORIAL DE CÁLCULO}%
+\end{center}%
+\section{Cálculo de Tração}%
+\label{sec:ClculodeTrao}%
+
+%
+\subsection{Cálculo da Força Resistente à Tração (Item 5.2.2)}%
+\label{subsec:ClculodaForaResistenteTrao(Item5.2.2)}%
+Força resistente à tração (escoamento da seção bruta):%
+\[%
+N_{{trd}} = \frac{{A_g \cdot f_y}}{1.10}  = \frac{{16.60 \cdot 34.50}}{1.10} = 520.64  ~  kN%
+\]
+
+%
+\section{Cálculo da Força Cortante Resistente}%
+\label{sec:ClculodaForaCortanteResistente}%
+
+%
+\subsection{Cálculo da Força Resistente a Cortante em X (Item 5.4.3.1.1)}%
+\label{subsec:ClculodaForaResistenteaCortanteemX(Item5.4.3.1.1)}%
+Área efetiva de cisalhamento:%
+\[%
+A_w = d' \cdot t_w = (11.80 \cdot 0.43) = 5.07    {cm}^2%
+\]%
+Força cortante de plastificação:%
+\[%
+V_{pl} = 0.6 \cdot A_w \cdot f_y = 0.6 \cdot 5.07 \cdot 34.50 = 105.03    kN%
+\]%
+Esbeltez do perfil:%
+\[%
+\lambda = \frac{d'}{t_w} = \frac{11.80}{0.43} = 27%
+\]%
+Lambda P:%
+\[%
+\lambda_p = 1.10 \cdot \sqrt{\frac{{k_v \cdot E}}{{f_y}}} = 1.10 \cdot \sqrt{\frac{{5 \cdot 20000}}{{34.50}}} = 59.22   ~   kN%
+\]%
+Lambda R:%
+\[%
+\lambda_r = 1.37 \cdot \sqrt{\frac{{k_v \cdot E}}{{f_y}}} = 1.37 \cdot \sqrt{\frac{{5 \cdot 20000}}{{34.50}}} = 73.76   ~   kN%
+\]%
+Força cortante resistente:%
+\[%
+V_{rd} = 1.24 \cdot \left(\frac{\lambda_p}{\lambda}\right)^2 \cdot \frac{V_{pl}}{1.10}  = 1.24 \cdot \left(\frac{59}{100}\right)^2 \cdot \frac{105.03}{1.10} = 95.48   ~   kN%
+\]
+
+%
+\end{document}
