@@ -14,8 +14,9 @@
 \begin{document}%
 \normalsize%
 \begin{center}%
-\textbf{\Large MEMORIAL DE CÁLCULO}%
+\textbf{\Large MEMORIAL DE CÁLCULO (NBR 8800/2024)}\par%
 \end{center}%
+Perfil: W 150 x 13,0%
 \section{Cálculo de Tração}%
 \label{sec:ClculodeTrao}%
 
@@ -28,8 +29,63 @@ N_{{trd}} = \frac{{A_g \cdot f_y}}{1.10}  = \frac{{16.60 \cdot 34.50}}{1.10} = 5
 \]
 
 %
-\section{Cálculo da Força Cortante Resistente}%
-\label{sec:ClculodaForaCortanteResistente}%
+\section{Cálculo da Força de Compressão}%
+\label{sec:ClculodaForadeCompresso}%
+
+%
+\subsection{Força axial de flambagem (Item 5.3.5)}%
+\label{subsec:Foraaxialdeflambagem(Item5.3.5)}%
+\[%
+N_{ex} = \frac{{\pi^2 \cdot E \cdot I_x}}{L_x^2} = \frac{{\pi^2 \cdot 20000 \cdot 635}}{300.00^2} = 1392.71    kN 
+%
+\]%
+\[%
+N_{ey} = \frac{{\pi^2 \cdot E \cdot I_y}}{L_y^2} = \frac{{\pi^2 \cdot 20000 \cdot 82}}{300.00^2} = 179.85    kN 
+%
+\]%
+\[%
+N_{ez} = \frac{1}{r_0^2} \cdot \left(\frac{\pi^2 \cdot E \cdot C_w}{L_z^2} + G \cdot I_t \right)  = \frac{1}{6.57^2} \cdot \left(\frac{\pi^2 \cdot 20000 \cdot 4181}{300.00^2} + 7700 \cdot 1.72 \right) = 519.79    kN 
+%
+\]
+
+%
+Força normal de flambagem elástica (Ne): 179.85 kN%
+\subsection{Índice de esbeltez reduzido (Item 5.3.3.2)}%
+\label{subsec:ndicedeesbeltezreduzido(Item5.3.3.2)}%
+\[%
+\lambda_0 = \sqrt{\frac{a_g \cdot f_y}{N_e}} = \sqrt{\frac{16.60 \cdot 34.50}{179.85}} = 1.78 
+%
+\]
+
+%
+\subsection{Fator de redução (Item 5.3.3)}%
+\label{subsec:Fatordereduo(Item5.3.3)}%
+\[%
+\chi = \frac{0.877}{\lambda_0^2}  = \frac{0.877}{1.78^2} = 0.28 
+%
+\]
+
+%
+\subsection{Largura efetiva dos elementos (Item 5.3.4.2)}%
+\label{subsec:Larguraefetivadoselementos(Item5.3.4.2)}%
+Esbeltez da alma:%
+\[%
+\frac{b}{t} = \frac{11.80}{0.43} = 27.44 
+%
+\]%
+Esbeltez limite da alma:%
+\[%
+\frac{1.49 \cdot \sqrt{\frac{E}{f_y}}}{\sqrt{\chi}}  = \frac{1.49 \cdot \sqrt{\frac{20000}{34.50}}}{\sqrt{0.28}}  = 68.36 
+%
+\]%
+Largura efetiva da alma:%
+\[%
+ b_{ef} = b \cdot \left( 1 - c_1 \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} \right) \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} %
+\]
+
+%
+\section{Cálculo da Força Cortante}%
+\label{sec:ClculodaForaCortante}%
 
 %
 \subsection{Cálculo da Força Resistente a Cortante em X (Item 5.4.3.1.1)}%

@@ -93,7 +93,7 @@ class Principal(Tk):
         self.frame_resul.entry_myrd.delete(0, END)
 
     def memorial(self):
-        self.gerar_mem = Gerar_pdf(self.calc_tracao, self.calc_cort_x)   
+        self.gerar_mem = Gerar_pdf(self.frame_perfil, self.calc_tracao, self.calc_compressao, self.calc_cort_x)   
         self.gerar_mem.gerar()
 
 class Solicitacoes(Frame):
@@ -497,7 +497,7 @@ class Compressao:
     def __init__(self, e, fy, ag, dlinha, tw, bf, tf, ix, lx, iy, ly, lz, it, g, cw, rx, ry, x0, y0):
         self.ag = ag #cm2
         self.fy = fy /10.0 #kN/cm2
-        self.e = e / 10.0
+        self.e = e / 10.0 #kN/cm2
         self.dlinha = dlinha / 10.0 #cm
         self.tw = tw /10.0 #cm
         self.bf = bf/ 10.0 #cm
@@ -528,8 +528,8 @@ class Compressao:
         #modo de flambagem em y
         self.ney = (math.pow(math.pi, 2.0) * self.e * self.iy) / (math.pow(self.ly, 2.0))
         #modo de flambagem em z
-        self.r0 = math.pow(self.x0, 2.0) + math.pow(self.y0, 2.0) + math.pow(self.rx, 2.0) + math.pow(self.ry, 2.0)
-        self.nez = (1 / self.r0 ) * ((math.pow(math.pi,2.0) + self.e + self.cw) /(math.pow(self.lz, 2.0)) + self.g * self.it)
+        self.r0 = math.sqrt((math.pow(self.x0, 2.0) + math.pow(self.y0, 2.0) + math.pow(self.rx, 2.0) + math.pow(self.ry, 2.0)))
+        self.nez = (1 / math.pow(self.r0, 2.0)) * ((math.pow(math.pi,2.0) * self.e * self.cw) / (math.pow(self.lz, 2.0)) + self.g * self.it)
 
         self.ne = min(self.nex, self.ney, self.nez)
 
@@ -545,9 +545,9 @@ class Compressao:
         #5.3.4 - Área efetiva da seção transversal
         #Flambabem local da alma
         self.btalma = self.dlinha / self.tw
-        self.btlimalma = 1.49 * math.sqrt(self.e / self.fy)
+        self.btlimalma = 1.49 * math.sqrt(self.e / self.fy)/math.sqrt(self.x)
 
-        if self.btalma <= (self.btlimalma/math.sqrt(self.x)):
+        if self.btalma <= self.btlimalma:
             self.bef_alma = self.dlinha
         else:
             self.c1 = 0.18
@@ -557,8 +557,8 @@ class Compressao:
         
         #Flambagem local da mesa
         self.btmesa = self.bf / (2 * self.tf)
-        self.btlimmesa = 0.56 * math.sqrt(self.e / self.fy)
-        if self.btmesa <= (self.btlimmesa/math.sqrt(self.x)):
+        self.btlimmesa = 0.56 * math.sqrt(self.e / self.fy)/math.sqrt(self.x)
+        if self.btmesa <= self.btlimmesa:
             self.bef_mesa = self.bf / 2.0
         else:
             self.c1 = 0.22
@@ -707,9 +707,11 @@ class Cortante_Y:
             self.vrd = 1.24 * math.pow((self.lambda_p / self.lambda_alma), 2.0) * (self.vpl / 1.10)
 
 class Gerar_pdf:
-    def __init__(self, tracao_inst, cortantex_inst): #instancias das classes
+    def __init__(self, perfil_inst, tracao_inst, comp_inst, cortantex_inst): #instancias das classes
         self.tracao = tracao_inst
+        self.comp = comp_inst
         self.cortantex = cortantex_inst
+        self.perfil = perfil_inst
 
     def gerar(self):
         # Define as margens do PDF
@@ -723,7 +725,9 @@ class Gerar_pdf:
         # Criar o documento LaTeX
         doc = Document(geometry_options=geometry_options)
         with doc.create(Center()):
-            doc.append(NoEscape(r"\textbf{\Large MEMORIAL DE CÁLCULO}"))
+            doc.append(NoEscape(r"\textbf{\Large MEMORIAL DE CÁLCULO (NBR 8800/2024)}\par"))
+        doc.append(f"Perfil: {self.perfil.cmb_perfil.get()}")
+
 
     #TRAÇÃO----------------------------------------------------------
         ag = self.tracao.ag
@@ -741,7 +745,107 @@ class Gerar_pdf:
                 doc.append(NoEscape(r'N_{{trd}} = \frac{{A_g \cdot f_y}}{1.10}'))
                 doc.append(NoEscape(r' = \frac{{%.2f \cdot %.2f}}{1.10}' % (ag, fy)))
                 doc.append(f"= {ntrd:.2f}  \u00A0  kN")
-        
+
+        #Compressão ---------------------------------------------------------------------------
+        self.e = self.comp.e #kN/cm2
+        self.g = self.comp.g #kN/cm2
+        self.lx = self.comp.lx
+        self.ly = self.comp.ly
+        self.lz = self.comp.lz
+        self.fy = self.comp.fy
+        self.ix = self.comp.ix
+        self.iy = self.comp.iy
+        self.it = self.comp.it
+        self.nex = self.comp.nex
+        self.ney = self.comp.ney
+        self.nez = self.comp.nez
+        self.ne = self.comp.ne
+        self.r0 = self.comp.r0
+        self.rx = self.comp.rx
+        self.ry = self.comp.ry
+        self.cw = self.comp.cw
+        self.ag = self.comp.ag
+        self.lamb_0 = self.comp.lambda0
+        self.x = self.comp.x
+        self.dlinha = self.comp.dlinha
+        self.tw = self.comp.tw
+        self.lamb_alma = self.comp.btalma
+        self.lamb_alma_lim = self.comp.btlimalma
+
+        # Seção principal
+        with doc.create(Section("Cálculo da Força de Compressão")):
+            doc.append(f"")
+
+        # Cálculo da força resistente a compressão
+        with doc.create(Subsection("Força axial de flambagem (Item 5.3.5)")):
+            with doc.create(Math()):
+                doc.append(NoEscape(r"N_{ex} = \frac{{\pi^2 \cdot E \cdot I_x}}{L_x^2}"))
+                doc.append(NoEscape(r"= \frac{{\pi^2 \cdot %.0f \cdot %.0f}}{%.2f^2}" % (self.e, self.ix, self.lx)))
+                doc.append(NoEscape(f"= {self.nex:.2f}  \u00A0 kN \n"))  
+            with doc.create(Math()):
+                doc.append(NoEscape(r"N_{ey} = \frac{{\pi^2 \cdot E \cdot I_y}}{L_y^2}"))
+                doc.append(NoEscape(r"= \frac{{\pi^2 \cdot %.0f \cdot %.0f}}{%.2f^2}" % (self.e, self.iy, self.ly)))
+                doc.append(NoEscape(f"= {self.ney:.2f}  \u00A0 kN \n"))  
+            with doc.create(Math()):
+                doc.append(NoEscape(r"N_{ez} = \frac{1}{r_0^2} \cdot \left(\frac{\pi^2 \cdot E \cdot C_w}{L_z^2} + G \cdot I_t \right)"))
+                doc.append(NoEscape(r" = \frac{1}{%.2f^2} \cdot \left(\frac{\pi^2 \cdot %.0f \cdot %.0f}{%.2f^2} + %.0f \cdot %.2f \right)" % 
+                                    (self.r0, self.e, self.cw, self.lz,self.comp.g, self.comp.it )))
+                doc.append(NoEscape(f"= {self.nez:.2f}  \u00A0 kN \n")) 
+        doc.append(f"Força normal de flambagem elástica (Ne): {self.ne:.2f} kN")
+
+        with doc.create(Subsection("Índice de esbeltez reduzido (Item 5.3.3.2)")):
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\lambda_0 = \sqrt{\frac{a_g \cdot f_y}{N_e}}'))
+                doc.append(NoEscape(r'= \sqrt{\frac{%.2f \cdot %.2f}{%.2f}}' % (self.ag, self.fy, self.ne)))
+                doc.append(NoEscape(f"= {self.lamb_0:.2f} \n")) 
+       
+        with doc.create(Subsection("Fator de redução (Item 5.3.3)")):
+            if self.lamb_0 <= 1.5:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'\chi = 0.658^{\lambda_0^2}'))
+                    doc.append(NoEscape(r' = 0.658^{%.2f^2}' % (self.lamb_0)))
+                    doc.append(NoEscape(f"= {self.x:.2f} \n")) 
+            else:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'\chi = \frac{0.877}{\lambda_0^2}'))
+                    doc.append(NoEscape(r' = \frac{0.877}{%.2f^2}' % (self.lamb_0)))
+                    doc.append(NoEscape(f"= {self.x:.2f} \n"))   
+
+        with doc.create(Subsection("Largura efetiva dos elementos (Item 5.3.4.2)")):
+            doc.append("Esbeltez da alma:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\frac{b}{t} = \frac{%.2f}{%.2f}" %(self.dlinha, self.tw)))
+                doc.append(NoEscape(f"= {self.lamb_alma:.2f} \n")) 
+            doc.append("Esbeltez limite da alma:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\frac{1.49 \cdot \sqrt{\frac{E}{f_y}}}{\sqrt{\chi}} "))
+                doc.append(NoEscape(r"= \frac{1.49 \cdot \sqrt{\frac{%.0f}{%.2f}}}{\sqrt{%.2f}} " % (self.e, self.fy, self.x)))
+                doc.append(NoEscape(f"= {self.lamb_alma_lim:.2f} \n"))
+            doc.append("Largura efetiva da alma:")
+            self.lamb_alma = 70
+            if self.lamb_alma <= self.lamb_alma_lim:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r" b_{ef} = %.2f \ cm" % (self.dlinha)))
+            else:
+                with doc.create(Math()):
+                    #doc.append(NoEscape(r" b_{ef} = b \cdot \left(1 - c_1 \cdot \frac{\sigma_{el}}{\chi \cdot f_y} \rigth) \cdot \frac{\sigma_{el}}{\chi \cdot f_y} cm"))               
+                    doc.append(NoEscape(r" b_{ef} = b \cdot \left( 1 - c_1 \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} \right) \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} ")) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         #Cortante X----------------------------------------------------------------------------
         self.dlinha = self.cortantex.dlinha  #cm
         self.tw = self.cortantex.tw  #cm
@@ -755,7 +859,7 @@ class Gerar_pdf:
         self.vrd = self.cortantex.vrd #kN
 
         # Seção principal
-        with doc.create(Section("Cálculo da Força Cortante Resistente")):
+        with doc.create(Section("Cálculo da Força Cortante")):
             doc.append(f"")
 
         # Cálculo da força resistente a cortante
@@ -793,6 +897,7 @@ class Gerar_pdf:
                 doc.append(NoEscape(lambda_r_formula))
                 doc.append(f"= {self.lamb_r:.2f}   \u00A0   kN")
             self.lambda_alma = 100
+
             doc.append("Força cortante resistente:")
             if self.lambda_alma <= self.lamb_p:
                 with doc.create(Math()):
@@ -805,7 +910,6 @@ class Gerar_pdf:
                     doc.append(NoEscape(r' = \frac{%.0f}{%.0f} \cdot \frac{%.2f}{1.10}' % (self.lamb_p, self.lamb_r, self.vpl)))
                     doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
             elif self.lambda_alma > self.lamb_r:
-                #self.vrd = 1.24 * math.pow((self.lambda_p / self.lambda_alma), 2.0) * (self.vpl / 1.10)
                 with doc.create(Math()):
                     doc.append(NoEscape(r'V_{rd} = 1.24 \cdot \left(\frac{\lambda_p}{\lambda}\right)^2 \cdot \frac{V_{pl}}{1.10}'))
                     doc.append(NoEscape(r' = 1.24 \cdot \left(\frac{%.0f}{%.0f}\right)^2 \cdot \frac{%.2f}{1.10}' %(self.lamb_p, self.lambda_alma, self.vpl)))
