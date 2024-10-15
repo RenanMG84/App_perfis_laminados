@@ -519,7 +519,8 @@ class Compressao:
         self.bef_mesa = 0
         self.c1 = 0 
         self.c2 = 0
-        self.tensao_ele = 0
+        self.tensao_ele_alma = 0
+        self.tensao_ele_mesa = 0
         self.aef = 0
 
         #5.3.3 - Flambagem global
@@ -552,8 +553,8 @@ class Compressao:
         else:
             self.c1 = 0.18
             self.c2 = 1.31
-            self.tensao_ele = math.pow((self.c2 * (self.btlimalma / self.btalma) ),2.0) * self.fy
-            self.bef_alma = self.dlinha * (1 - (self.c1 * math.sqrt(self.tensao_ele / (self.x * self.fy))) * (math.sqrt(self.tensao_ele / (self.x * self.fy))) )
+            self.tensao_ele_alma = math.pow((self.c2 * (self.btlimalma / self.btalma) ), 2.0) * self.fy
+            self.bef_alma = self.dlinha * (1 - (self.c1 * math.sqrt(self.tensao_ele_alma / (self.x * self.fy))) * (math.sqrt(self.tensao_ele_alma / (self.x * self.fy))) )
         
         #Flambagem local da mesa
         self.btmesa = self.bf / (2 * self.tf)
@@ -563,8 +564,8 @@ class Compressao:
         else:
             self.c1 = 0.22
             self.c2 = 1.49
-            self.tensao_ele = math.pow((self.c2 * (self.btlimmesa / self.btmesa) ), 2.0) * self.fy
-            self.bef_alma = self.dlinha * (1 - (self.c1 * math.sqrt(self.tensao_ele / (self.x * self.fy))) * (math.sqrt(self.tensao_ele / (self.x * self.fy))) )
+            self.tensao_ele_mesa = math.pow((self.c2 * (self.btlimmesa / self.btmesa) ), 2.0) * self.fy
+            self.bef_mesa = self.dlinha * (1 - (self.c1 * math.sqrt(self.tensao_ele_mesa / (self.x * self.fy))) * (math.sqrt(self.tensao_ele_mesa / (self.x * self.fy))) )
 
         #Cálculo da área efetiva
         self.aef = self.ag - ((self.dlinha -self.bef_alma ) * self.tw + 4 * ((self.bf / 2.0 ) - self.bef_mesa) * self.tf)
@@ -770,7 +771,17 @@ class Gerar_pdf:
         self.dlinha = self.comp.dlinha
         self.tw = self.comp.tw
         self.lamb_alma = self.comp.btalma
+        self.lamb_mesa = self.comp.btmesa
         self.lamb_alma_lim = self.comp.btlimalma
+        self.lamb_mesa_lim = self.comp.btlimmesa
+        self.sigma_ele_alma = self.comp.tensao_ele_alma
+        self.sigma_ele_mesa= self.comp.tensao_ele_mesa
+        self.bef_alma = self.comp.bef_alma
+        self.bef_mesa = self.comp.bef_mesa
+        self.b_mesa = self.comp.bf / 2.0
+        self.tf = self.comp.tf
+        self.a_ef = self.comp.aef
+        self.ncrd = self.comp.ncrd
 
         # Seção principal
         with doc.create(Section("Cálculo da Força de Compressão")):
@@ -822,18 +833,43 @@ class Gerar_pdf:
                 doc.append(NoEscape(r"= \frac{1.49 \cdot \sqrt{\frac{%.0f}{%.2f}}}{\sqrt{%.2f}} " % (self.e, self.fy, self.x)))
                 doc.append(NoEscape(f"= {self.lamb_alma_lim:.2f} \n"))
             doc.append("Largura efetiva da alma:")
-            self.lamb_alma = 70
             if self.lamb_alma <= self.lamb_alma_lim:
                 with doc.create(Math()):
-                    doc.append(NoEscape(r" b_{ef} = %.2f \ cm" % (self.dlinha)))
+                    doc.append(NoEscape(r" b_{ef} = %.2f \ cm" % (self.bef_alma)))
             else:
-                with doc.create(Math()):
-                    #doc.append(NoEscape(r" b_{ef} = b \cdot \left(1 - c_1 \cdot \frac{\sigma_{el}}{\chi \cdot f_y} \rigth) \cdot \frac{\sigma_{el}}{\chi \cdot f_y} cm"))               
+                with doc.create(Math()):        
                     doc.append(NoEscape(r" b_{ef} = b \cdot \left( 1 - c_1 \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} \right) \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} ")) 
+                    doc.append(NoEscape(r" = %.2f \cdot \left(1 - 0.18 \cdot \sqrt{\frac{%.2f}{%.2f \cdot %.2f}} \right) \cdot \sqrt{\frac{%.2f}{%.2f \cdot %.2f}}" % (self.dlinha, self.sigma_ele_alma, self.x, self.fy, self.sigma_ele_alma, self.x, self.fy ))) 
+                    doc.append(NoEscape(f"= {self.bef_alma:.2f} \n")) 
+            
+            doc.append("Esbeltez da mesa:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\frac{b}{t} = \frac{%.2f}{%.2f}" %(self.b_mesa, self.tf)))
+                doc.append(NoEscape(f"= {self.lamb_mesa:.2f} \n")) 
+            doc.append("Esbeltez limite da mesa:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\frac{0.56 \cdot \sqrt{\frac{E}{f_y}}}{\sqrt{\chi}} "))
+                doc.append(NoEscape(r"= \frac{0.56 \cdot \sqrt{\frac{%.0f}{%.2f}}}{\sqrt{%.2f}} " % (self.e, self.fy, self.x)))
+                doc.append(NoEscape(f"= {self.lamb_mesa_lim:.2f} \n"))
+            doc.append("Largura efetiva da mesa:")
+            if self.lamb_mesa <= self.lamb_mesa_lim:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r" b_{ef} = %.2f \ cm" % (self.bef_mesa)))
+            else:
+                with doc.create(Math()):        
+                    doc.append(NoEscape(r" b_{ef} = b \cdot \left( 1 - c_1 \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} \right) \cdot \sqrt{\frac{\sigma_{el}}{\chi \cdot f_y}} ")) 
+                    doc.append(NoEscape(r" = %.2f \cdot \left(1 - 0.18 \cdot \sqrt{\frac{%.2f}{%.2f \cdot %.2f}} \right) \cdot \sqrt{\frac{%.2f}{%.2f \cdot %.2f}}" % (self.dlinha, self.sigma_ele_mesa, self.x, self.fy, self.sigma_ele_mesa, self.x, self.fy ))) 
+                    doc.append(NoEscape(f" = {self.bef_mesa:.2f} \n")) 
 
+            doc.append("Área efetiva:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r" A_{ef} = %.2f \ {cm}^2" % (self.a_ef)))
 
-
-
+            doc.append("Força axial resistente de cálculo:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r" N_{c,rd} = \frac{\chi \cdot A_{ef} \cdot f_y}{1.10}"))
+                doc.append(NoEscape(r" = \frac{%.2f \cdot %.2f \cdot %.2f}{1.10}" % (self.x, self.a_ef, self.fy)))
+                doc.append(NoEscape(f" = {self.ncrd:.3f} \u00A0 kN \n")) 
 
 
 
