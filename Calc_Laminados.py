@@ -63,25 +63,55 @@ class Principal(Tk):
         #Tração
         self.calc_tracao = Tracao(self.frame_perfil.area, self.fy)
         self.frame_resul.entry_ntrd.insert(1,f"{self.calc_tracao.ntrd:.2f}")
+        if float(self.solicitacoes.entry_ntsd.get()) / float(self.frame_resul.entry_ntrd.get()) < 1.0:
+            self.frame_resul.entry_ntrd.configure(fg= 'green')
+        else:
+            self.frame_resul.entry_ntrd.configure(fg= 'red')
+
 
         #Compressão
         self.calc_compressao = Compressao(self.e, self.fy, self.frame_perfil.area, self.frame_perfil.dlinha, self.frame_perfil.tw, self.frame_perfil.bf, self.frame_perfil.tf,
                                           self.frame_perfil.ix, self.lx, self.frame_perfil.iy, self.ly, self.lz, self.frame_perfil.it, self.g, self.frame_perfil.cw, self.frame_perfil.rx,
                                             self.frame_perfil.ry, 0, 0)
         self.frame_resul.entry_ncrd.insert(1,f"{self.calc_compressao.ncrd:.2f}")
+        if float(self.solicitacoes.entry_ncsd.get()) / float(self.frame_resul.entry_ncrd.get()) < 1.0:
+            self.frame_resul.entry_ncrd.configure(fg= 'green')
+        else:
+            self.frame_resul.entry_ncrd.configure(fg= 'red')
 
         #Momento em X
         self.calc_mom_x = Momento_X(self.e, self.g, self.fy, self.frame_perfil.zx, self.frame_perfil.wx, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
                                     self.frame_perfil.dlinha, self.frame_perfil.tw, self.lb, self.frame_perfil.ry, self.cb, self.frame_perfil.iy, self.frame_perfil.cw)
         self.frame_resul.entry_mxrd.insert(1,f"{self.calc_mom_x.mxrd:.2f}")
+        if float(self.solicitacoes.entry_mxsd.get()) / float(self.frame_resul.entry_mxrd.get()) < 1.0:
+            self.frame_resul.entry_mxrd.configure(fg= 'green')
+        else:
+            self.frame_resul.entry_mxrd.configure(fg= 'red')
+
+        #Momento em Y
+        self.calc_mom_y = Momento_Y(self.e, self.g, self.fy, self.frame_perfil.zy, self.frame_perfil.wy, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
+                                    self.frame_perfil.dlinha, self.frame_perfil.tw, self.lb, self.frame_perfil.ry, self.cb, self.frame_perfil.iy, self.frame_perfil.cw)
+        self.frame_resul.entry_myrd.insert(1,f"{self.calc_mom_y.myrd:.2f}")
+        if float(self.solicitacoes.entry_mysd.get()) / float(self.frame_resul.entry_myrd.get()) < 1.0:
+            self.frame_resul.entry_myrd.configure(fg= 'green')
+        else:
+            self.frame_resul.entry_myrd.configure(fg= 'red')
 
         #Cortante em X 
         self.calc_cort_x = Cortante_X(self.frame_perfil.dlinha, self.frame_perfil.tw, self.fy,self.e)
         self.frame_resul.entry_vxrd.insert(1,f"{self.calc_cort_x.vrd:.2f}")
+        if float(self.solicitacoes.entry_vxsd.get()) / float(self.frame_resul.entry_vxrd.get()) < 1.0:
+            self.frame_resul.entry_vxrd.configure(fg= 'green')
+        else:
+            self.frame_resul.entry_vxrd.configure(fg= 'red')
 
         #Cortante em Y
-        self.calc_cort_y = Cortante_Y(self.frame_perfil.bf, self.frame_perfil.tf, self.fy,self.e)
+        self.calc_cort_y = Cortante_Y(self.frame_perfil.bf, self.frame_perfil.tf, self.fy,self.e, self.frame_perfil.tw)
         self.frame_resul.entry_vyrd.insert(1,f"{self.calc_cort_y.vrd:.2f}")
+        if float(self.solicitacoes.entry_vysd.get()) / float(self.frame_resul.entry_vyrd.get()) < 1.0:
+            self.frame_resul.entry_vyrd.configure(fg= 'green')
+        else:
+            self.frame_resul.entry_vyrd.configure(fg= 'red')
 
     def apagar(self):
         #apaga as entradas
@@ -93,7 +123,7 @@ class Principal(Tk):
         self.frame_resul.entry_myrd.delete(0, END)
 
     def memorial(self):
-        self.gerar_mem = Gerar_pdf(self.frame_perfil, self.calc_tracao, self.calc_compressao, self.calc_cort_x)   
+        self.gerar_mem = Gerar_pdf(self.frame_perfil, self.calc_tracao, self.calc_compressao, self.calc_cort_x, self.calc_cort_y)   
         self.gerar_mem.gerar()
 
 class Solicitacoes(Frame):
@@ -106,31 +136,37 @@ class Solicitacoes(Frame):
         self.label_ncsd = Label(self.labelframe, text= 'Nc,Sd')
         self.label_ncsd.grid(row=0, column= 0, pady = (5,3), padx= (10,0))
         self.entry_ncsd = Entry(self.labelframe, width = 10)
+        self.entry_ncsd.insert(0,"0")
         self.entry_ncsd.grid(row = 0, column= 1, padx= 3, pady = (5,0), sticky='w')
 
         self.label_ntsd = Label(self.labelframe, text= 'Nt,Sd')
         self.label_ntsd.grid(row=1, column= 0, pady = 3, padx= (10,0))
         self.entry_ntsd = Entry(self.labelframe, width = 10)
+        self.entry_ntsd.insert(0,"0")
         self.entry_ntsd.grid(row = 1, column= 1, padx= 3, sticky='w')
 
         self.label_mxsd = Label(self.labelframe, text= 'Mx,Sd')
         self.label_mxsd.grid(row=2, column= 0, pady = 3, padx= (10,0))
         self.entry_mxsd = Entry(self.labelframe, width = 10)
+        self.entry_mxsd.insert(0,"0")
         self.entry_mxsd.grid(row = 2, column= 1, pady = 3,padx= 3, sticky='w')
 
         self.label_vxsd = Label(self.labelframe, text= 'Vx,Sd')
         self.label_vxsd.grid(row=0, column= 2, pady = (5,3))
         self.entry_vxsd = Entry(self.labelframe, width = 10)
+        self.entry_vxsd.insert(0,"0")
         self.entry_vxsd.grid(row = 0, column= 3, pady = (5,0), sticky='w')
 
         self.label_vysd = Label(self.labelframe, text= 'Vy,Sd')
         self.label_vysd.grid(row=1, column= 2, pady = 3)
         self.entry_vysd = Entry(self.labelframe, width = 10)
+        self.entry_vysd.insert(0,"0")
         self.entry_vysd.grid(row = 1, column= 3, sticky='w')
 
         self.label_mysd = Label(self.labelframe, text= 'My,Sd')
         self.label_mysd.grid(row=2, column= 2, padx= 5)
         self.entry_mysd = Entry(self.labelframe, width = 10)
+        self.entry_mysd.insert(0,"0")
         self.entry_mysd.grid(row = 2, column= 3, sticky='w')
 
 class Aco(Frame):
@@ -356,7 +392,7 @@ class Frame_Perfil(Frame):
         ]
 
         label1 = Label(self, text = "Escolha o perfil")
-        label1.grid(row = 0, column = 1, pady = 2, sticky='nsew')
+        label1.grid(row = 0, column = 0, pady = 2,  sticky='nsew')
         self.cmb_perfil = Combobox(self, values=self.perfis, state="readonly", width = 17)
         self.cmb_perfil.current(0)  # define o item selecionado
         self.cmb_perfil.grid(row = 1, column=0, columnspan= 2, sticky='nsew')
@@ -657,6 +693,73 @@ class Momento_X:
         #Momento fletor resistente
         self.mxrd = min(self.mrd_alma, self.mrd_mesa, self.mrd_flt, self.mom_max)
 
+class Momento_Y:
+    def __init__(self, e, g, fy, zy, wy, it, bf, tf, dlinha, tw, lb, ry, cb, iy, cw):
+        self.e = e / 10.0  #kN/cm2
+        self.fy = fy /10.0 #kN/cm2
+        self.g = g /10.0 #kN/cm2
+        self.zy = zy #cm3
+        self.wy = wy #cm3
+        self.it = it #cm4
+        self.bf = bf /10 #cm
+        self.tf = tf /10 #cm
+        self.tw = tw /10 #cm
+        self.dlinha = dlinha /10 #cm
+        self.lb = lb #cm
+        self.ry = ry #cm
+        self.iy = iy #cm4
+        self.cw = cw #cm6
+        self.mrd_mesa = 0 
+        self.mrd_alma = 0 
+        self.mrd_flt = 0
+        self.cb = cb
+
+        #Momentos de plastificação e residual
+        self.mpl = self.zy * self.fy
+        self.mr = self.wy * 0.7 * self.fy      
+
+        #Flambagem local da mesa - FLM
+        #esbeltez da mesa
+        self.esb_mesa = self.bf / (2 * self.tf)
+        #esbeltez limite P da mesa
+        self.esb_lim_p_mesa = 0.38 * math.sqrt(self.e / self.fy)
+        #esbeltez limite R da mesa
+        self.esb_lim_r_mesa = 0.83 * math.sqrt(self.e / (0.7*self.fy))
+
+        #determina o momento fletor resistente para FLM
+        if self.esb_mesa <= self.esb_lim_p_mesa:
+            self.mrd_mesa = self.mpl / 1.10
+        else:
+            if self.esb_mesa > self.esb_lim_p_mesa and self.esb_mesa <= self.esb_lim_r_mesa:
+                self.mrd_mesa = (self.mpl - (self.mpl - self.mr)* ((self.esb_mesa - self.esb_lim_p_mesa) / (self.esb_lim_r_mesa - self.esb_lim_p_mesa))) / 1.10
+            else:
+                self.mrd_mesa = (0.69 * self.e * self.wx) / math.pow(self.esb_lim_r_mesa, 2.0)
+
+        #Flambagem local da alma - FLA
+        #esbeltez da alma
+        self.esb_alma = self.dlinha / self.tw
+        #esbeltez limite P da alma
+        self.esb_lim_p_alma = 1.12 * math.sqrt(self.e / self.fy)
+        #esbeltez limite R da alma
+        self.esb_lim_r_alma = 1.40 * math.sqrt(self.e / self.fy)
+        #momento crítico para FLA
+        self.mom_cr_fla = self.wy * self.fy
+
+        #determina o momento fletor resistente para FLA
+        if self.esb_alma <= self.esb_lim_p_alma:
+            self.mrd_alma = self.mpl / 1.10
+        else:
+            if self.esb_alma > self.esb_lim_p_alma and self.esb_alma <= self.esb_lim_r_alma:
+                self.mrd_alma = (self.mpl - (self.mpl - self.mr)* ((self.esb_alma - self.esb_lim_p_alma) / (self.esb_lim_r_alma - self.esb_lim_p_alma))) / 1.10
+            else:
+                self.mrd_alma = self.mom_cr_fla / 1.10 #kN*cm
+
+        #momento fletor máximo
+        self.mom_max = (1.5 * self.wy * self.fy) / 1.10
+
+        #Momento fletor resistente
+        self.myrd = min(self.mrd_alma, self.mrd_mesa, self.mom_max)
+
 class Cortante_X:
     def __init__(self, dlinha, tw, fy, e):
         self.dlinha = dlinha /10.0 #cm
@@ -683,22 +786,23 @@ class Cortante_X:
             self.vrd = 1.24 * math.pow((self.lambda_p / self.lambda_alma), 2.0) * (self.vpl / 1.10)
 
 class Cortante_Y:
-    def __init__(self, bf, tf, fy, e):
+    def __init__(self, bf, tf, fy, e, tw):
         self.bf = bf /10.0 #cm
         self.tf = tf /10.0 #cm
+        self.tw = tw /10.0 #cm
         self.fy = fy /10.0 #kN/cm2
         self.e = e /10.0 #kN/cm2
         self.vrd = 0 #kN
-        self.h = self.bf /4 
+        self.h = self.bf /2 
         self.aw = 2 * self.bf * self.tf
         self.vpl = 0.6 * self.aw * self.fy
 
         #lambda da alma
-        self.lambda_alma = self.h / self.tf
-        #lambda p
-        self.lambda_p = 1.10 * math.sqrt((1.2 + self.e) / self.fy)
-        #lambda q
-        self.lambda_r = 1.37 * math.sqrt((1.2 + self.e) / self.fy)
+        self.lambda_alma = self.h / self.tw
+        #lambda P
+        self.lambda_p = 1.10 * math.sqrt((1.2 * self.e) / self.fy)
+        #lambda R
+        self.lambda_r = 1.37 * math.sqrt((1.2 * self.e) / self.fy)
 
         if self.lambda_alma <= self.lambda_p:
             self.vrd = self.vpl / 1.10
@@ -708,10 +812,11 @@ class Cortante_Y:
             self.vrd = 1.24 * math.pow((self.lambda_p / self.lambda_alma), 2.0) * (self.vpl / 1.10)
 
 class Gerar_pdf:
-    def __init__(self, perfil_inst, tracao_inst, comp_inst, cortantex_inst): #instancias das classes
+    def __init__(self, perfil_inst, tracao_inst, comp_inst, cortantex_inst, cortantey_inst): #instancias das classes
         self.tracao = tracao_inst
         self.comp = comp_inst
         self.cortantex = cortantex_inst
+        self.cortantey = cortantey_inst
         self.perfil = perfil_inst
 
     def gerar(self):
@@ -899,7 +1004,7 @@ class Gerar_pdf:
             doc.append(f"")
 
         # Cálculo da força resistente a cortante
-        with doc.create(Subsection("Cálculo da Força Resistente a Cortante em X (Item 5.4.3.1.1)")):
+        with doc.create(Subsection("Cálculo da Força Resistente a Cortante em X (Item 5.4.3.1)")):
             doc.append("Área efetiva de cisalhamento:")
             with doc.create(Math()):
                 doc.append(NoEscape(r"A_w = d' \cdot t_w = (%.2f \cdot %.2f)" % (self.dlinha, self.tw)))
@@ -915,7 +1020,7 @@ class Gerar_pdf:
             with doc.create(Math()):
                 doc.append(NoEscape(r"\lambda = \frac{d'}{t_w}"))
                 doc.append(NoEscape(r"= \frac{%.2f}{%.2f}" % (self.dlinha, self.tw)))
-                doc.append(f"= {self.lambda_alma:.0f}")
+                doc.append(f"= {self.lambda_alma:.2f}")
 
             doc.append("Lambda P:")
             with doc.create(Math()):
@@ -923,7 +1028,7 @@ class Gerar_pdf:
                 doc.append(NoEscape(lambda_p_formula))
                 lambda_p_formula = r'= 1.10 \cdot \sqrt{\frac{{5 \cdot %.0f}}{{%.2f}}}' % (self.e, self.fy)
                 doc.append(NoEscape(lambda_p_formula))
-                doc.append(f"= {self.lamb_p:.2f}   \u00A0   kN")
+                doc.append(f"= {self.lamb_p:.2f} ")
 
             doc.append("Lambda R:")
             with doc.create(Math()):
@@ -931,8 +1036,7 @@ class Gerar_pdf:
                 doc.append(NoEscape(lambda_r_formula))
                 lambda_r_formula = r'= 1.37 \cdot \sqrt{\frac{{5 \cdot %.0f}}{{%.2f}}}' % (self.e, self.fy)
                 doc.append(NoEscape(lambda_r_formula))
-                doc.append(f"= {self.lamb_r:.2f}   \u00A0   kN")
-            self.lambda_alma = 100
+                doc.append(f"= {self.lamb_r:.2f} ")
 
             doc.append("Força cortante resistente:")
             if self.lambda_alma <= self.lamb_p:
@@ -948,12 +1052,79 @@ class Gerar_pdf:
             elif self.lambda_alma > self.lamb_r:
                 with doc.create(Math()):
                     doc.append(NoEscape(r'V_{rd} = 1.24 \cdot \left(\frac{\lambda_p}{\lambda}\right)^2 \cdot \frac{V_{pl}}{1.10}'))
-                    doc.append(NoEscape(r' = 1.24 \cdot \left(\frac{%.0f}{%.0f}\right)^2 \cdot \frac{%.2f}{1.10}' %(self.lamb_p, self.lambda_alma, self.vpl)))
+                    doc.append(NoEscape(r' = 1.24 \cdot \left(\frac{%.0f}{%.2f}\right)^2 \cdot \frac{%.2f}{1.10}' %(self.lamb_p, self.lambda_alma, self.vpl)))
                     doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
+       
+        #Cortante Y----------------------------------------------------------------------------
+        self.tw = self.cortantey.tw  #cm
+        self.aw = self.cortantey.aw #cm2
+        self.vpl = self.cortantey.vpl #kN
+        self.lamb_p = self.cortantey.lambda_p
+        self.lamb_r = self.cortantey.lambda_r
+        self.lambda_alma = self.cortantey.lambda_alma
+        self.e = self.cortantey.e #kN/cm2
+        self.fy = self.cortantey.fy #kN/cm2
+        self.vrd = self.cortantey.vrd #kN
+        self.bf = self.cortantey.bf
+        self.tf = self.cortantey.tf
+        self.h = self.cortantey.h
 
+        # Cálculo da força resistente a cortante em Y
+        with doc.create(Subsection("Cálculo da Força Resistente a Cortante em Y (Item 5.4.3.5)")):
+            doc.append("Área efetiva de cisalhamento:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"A_w = 2 \cdot b_f \cdot t_f = 2 \cdot %.2f \cdot %.2f " % (self.cortantey.bf, self.cortantey.tf)))
+                doc.append(NoEscape(f"= {self.aw:.2f}  \u00A0 {{cm}}^2"))  # LaTeX notation for cm²
 
+            doc.append("Força cortante de plastificação:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"V_{pl} = 0.6 \cdot A_w \cdot f_y"))
+                doc.append(NoEscape(r"= 0.6 \cdot %.2f \cdot %.2f" % (self.aw, self.fy)))
+                doc.append(NoEscape(f"= {self.vpl:.2f}  \u00A0 kN")) 
+            
+            doc.append("Valor de 'h':")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"h = \frac{b_f}{2} = \frac{%.2f}{2} = %.2f \ cm" % (self.cortantey.bf, self.cortantey.h) ))
 
+            doc.append("Esbeltez do perfil:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\lambda = \frac{h}{t_w}"))
+                doc.append(NoEscape(r"= \frac{%.2f}{%.2f}" % (self.h, self.tw)))
+                doc.append(f"= {self.lambda_alma:.2f}")
 
+            doc.append("Lambda P:")
+            with doc.create(Math()):
+                lambda_p_formula = r'\lambda_p = 1.10 \cdot \sqrt{\frac{{k_v \cdot E}}{{f_y}}}'
+                doc.append(NoEscape(lambda_p_formula))
+                lambda_p_formula = r'= 1.10 \cdot \sqrt{\frac{{1.2 \cdot %.0f}}{{%.2f}}}' % (self.e, self.fy)
+                doc.append(NoEscape(lambda_p_formula))
+                doc.append(f"= {self.lamb_p:.2f}")
+        
+            doc.append("Lambda R:")
+            with doc.create(Math()):
+                lambda_r_formula = r'\lambda_r = 1.37 \cdot \sqrt{\frac{{k_v \cdot E}}{{f_y}}}'
+                doc.append(NoEscape(lambda_r_formula))
+                lambda_r_formula = r'= 1.37 \cdot \sqrt{\frac{{1.2 \cdot %.0f}}{{%.2f}}}' % (self.e, self.fy)
+                doc.append(NoEscape(lambda_r_formula))
+                doc.append(f"= {self.lamb_r:.2f} ")
+            
+            doc.append("Força cortante resistente:")
+            if self.lambda_alma <= self.lamb_p:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'V_{rd} = \frac{V_{pl}}{1.10}'))
+                    doc.append(NoEscape(r' = \frac{%.2f}{1.10}' % (self.vpl)))
+                    doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
+            elif self.lambda_alma > self.lamb_p and self.lambda_alma <= self.lamb_r:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'V_{rd} = \frac{\lambda_p}{\lambda_r} \cdot \frac{V_{pl}}{1.10}'))
+                    doc.append(NoEscape(r' = \frac{%.0f}{%.0f} \cdot \frac{%.2f}{1.10}' % (self.lamb_p, self.lamb_r, self.vpl)))
+                    doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
+            elif self.lambda_alma > self.lamb_r:
+                with doc.create(Math()):
+                    doc.append(NoEscape(r'V_{rd} = 1.24 \cdot \left(\frac{\lambda_p}{\lambda}\right)^2 \cdot \frac{V_{pl}}{1.10}'))
+                    doc.append(NoEscape(r' = 1.24 \cdot \left(\frac{%.0f}{%.2f}\right)^2 \cdot \frac{%.2f}{1.10}' %(self.lamb_p, self.lambda_alma, self.vpl)))
+                    doc.append(f"= {self.vrd:.2f}   \u00A0   kN")
+            
         # Gerar o PDF
         doc.generate_pdf("memorial", clean_tex=False)
         messagebox.showinfo("Sucesso", "PDF gerado com sucesso!")
