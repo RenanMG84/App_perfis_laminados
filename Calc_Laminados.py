@@ -36,82 +36,91 @@ class Principal(Tk):
 
     
     def calcular(self):
-        #Limpa as entry de resultados no Frame Resultados
-        self.frame_resul.entry_ntrd.delete(0, END)
-        self.frame_resul.entry_ncrd.delete(0, END)
-        self.frame_resul.entry_vxrd.delete(0, END)
-        self.frame_resul.entry_vyrd.delete(0, END)
-        self.frame_resul.entry_myrd.delete(0, END)
-        self.frame_resul.entry_mxrd.delete(0, END)
+        try:
+            #Limpa as entry de resultados no Frame Resultados
+            self.frame_resul.entry_ntrd.delete(0, END)
+            self.frame_resul.entry_ncrd.delete(0, END)
+            self.frame_resul.entry_vxrd.delete(0, END)
+            self.frame_resul.entry_vyrd.delete(0, END)
+            self.frame_resul.entry_myrd.delete(0, END)
+            self.frame_resul.entry_mxrd.delete(0, END)
 
-        #passa os valores dos entrys do aço para as variáveis globais do frame Principal
-        self.e = float(self.prop_aco.entry_e.get())
-        self.g = float(self.prop_aco.entry_g.get())
-        self.fy = float(self.prop_aco.entry_fy.get())
-        self.fu = float(self.prop_aco.entry_fu.get())
+            #passa os valores dos entrys do aço para as variáveis globais do frame Principal
+            self.e = float(self.prop_aco.entry_e.get())
+            self.g = float(self.prop_aco.entry_g.get())
+            self.fy = float(self.prop_aco.entry_fy.get())
+            self.fu = float(self.prop_aco.entry_fu.get())
 
-        #passa os valores dos entrys do comprimento da barra para as variáveis globais do frame principal
-        self.lx = float(self.comp_barras.entry_lx.get())
-        self.ly = float(self.comp_barras.entry_ly.get())
-        self.lz = float(self.comp_barras.entry_lz.get())
-        self.lb = float(self.comp_barras.entry_lb.get())
+            #passa os valores dos entrys do comprimento da barra para as variáveis globais do frame principal
+            self.lx = float(self.comp_barras.entry_lx.get())
+            self.ly = float(self.comp_barras.entry_ly.get())
+            self.lz = float(self.comp_barras.entry_lz.get())
+            self.lb = float(self.comp_barras.entry_lb.get())
 
-        #pega o valor de cb
-        self.cb = float(self.frame_cb.entry_cb.get())
+            #pega o valor de cb
+            self.cb = float(self.frame_cb.entry_cb.get())
 
-        #cria objetos para calculo e insere os resultados nos respectivos entrys
-        #Tração
-        self.calc_tracao = Tracao(self.frame_perfil.area, self.fy)
-        self.frame_resul.entry_ntrd.insert(1,f"{self.calc_tracao.ntrd:.2f}")
-        if float(self.solicitacoes.entry_ntsd.get()) / float(self.frame_resul.entry_ntrd.get()) < 1.0:
-            self.frame_resul.entry_ntrd.configure(fg= 'green')
-        else:
-            self.frame_resul.entry_ntrd.configure(fg= 'red')
+            #cria objetos para calculo e insere os resultados nos respectivos entrys
+            #Tração
+            self.calc_tracao = Tracao(self.frame_perfil.area, self.fy)
+            self.frame_resul.entry_ntrd.insert(1,f"{self.calc_tracao.ntrd:.2f}")
+            if float(self.solicitacoes.entry_ntsd.get()) / float(self.frame_resul.entry_ntrd.get()) < 1.0:
+                self.frame_resul.entry_ntrd.configure(fg= 'green')
+            else:
+                self.frame_resul.entry_ntrd.configure(fg= 'red')
 
 
-        #Compressão
-        self.calc_compressao = Compressao(self.e, self.fy, self.frame_perfil.area, self.frame_perfil.dlinha, self.frame_perfil.tw, self.frame_perfil.bf, self.frame_perfil.tf,
-                                          self.frame_perfil.ix, self.lx, self.frame_perfil.iy, self.ly, self.lz, self.frame_perfil.it, self.g, self.frame_perfil.cw, self.frame_perfil.rx,
-                                            self.frame_perfil.ry, 0, 0)
-        self.frame_resul.entry_ncrd.insert(1,f"{self.calc_compressao.ncrd:.2f}")
-        if float(self.solicitacoes.entry_ncsd.get()) / float(self.frame_resul.entry_ncrd.get()) < 1.0:
-            self.frame_resul.entry_ncrd.configure(fg= 'green')
-        else:
-            self.frame_resul.entry_ncrd.configure(fg= 'red')
+            #Compressão
+            self.calc_compressao = Compressao(self.e, self.fy, self.frame_perfil.area, self.frame_perfil.dlinha, self.frame_perfil.tw, self.frame_perfil.bf, self.frame_perfil.tf,
+                                            self.frame_perfil.ix, self.lx, self.frame_perfil.iy, self.ly, self.lz, self.frame_perfil.it, self.g, self.frame_perfil.cw, self.frame_perfil.rx,
+                                                self.frame_perfil.ry, 0, 0)
+            self.frame_resul.entry_ncrd.insert(1,f"{self.calc_compressao.ncrd:.2f}")
+            if float(self.solicitacoes.entry_ncsd.get()) / float(self.frame_resul.entry_ncrd.get()) < 1.0:
+                self.frame_resul.entry_ncrd.configure(fg= 'green')
+            else:
+                self.frame_resul.entry_ncrd.configure(fg= 'red')
 
-        #Momento em X
-        self.calc_mom_x = Momento_X(self.e, self.g, self.fy, self.frame_perfil.zx, self.frame_perfil.wx, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
-                                    self.frame_perfil.dlinha, self.frame_perfil.tw, self.lb, self.frame_perfil.ry, self.cb, self.frame_perfil.iy, self.frame_perfil.cw)
-        self.frame_resul.entry_mxrd.insert(1,f"{self.calc_mom_x.mxrd:.2f}")
-        if float(self.solicitacoes.entry_mxsd.get()) / float(self.frame_resul.entry_mxrd.get()) < 1.0:
-            self.frame_resul.entry_mxrd.configure(fg= 'green')
-        else:
-            self.frame_resul.entry_mxrd.configure(fg= 'red')
+            #Momento em X
+            self.calc_mom_x = Momento_X(self.e, self.g, self.fy, self.frame_perfil.zx, self.frame_perfil.wx, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
+                                        self.frame_perfil.dlinha, self.frame_perfil.tw, self.lb, self.frame_perfil.ry, self.cb, self.frame_perfil.iy, self.frame_perfil.cw)
+            self.frame_resul.entry_mxrd.insert(1,f"{self.calc_mom_x.mxrd:.2f}")
+            if float(self.solicitacoes.entry_mxsd.get()) / float(self.frame_resul.entry_mxrd.get()) < 1.0:
+                self.frame_resul.entry_mxrd.configure(fg= 'green')
+            else:
+                self.frame_resul.entry_mxrd.configure(fg= 'red')
 
-        #Momento em Y
-        self.calc_mom_y = Momento_Y(self.e, self.g, self.fy, self.frame_perfil.zy, self.frame_perfil.wy, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
-                                    self.frame_perfil.dlinha, self.frame_perfil.tw, self.lb, self.frame_perfil.ry, self.cb, self.frame_perfil.iy, self.frame_perfil.cw)
-        self.frame_resul.entry_myrd.insert(1,f"{self.calc_mom_y.myrd:.2f}")
-        if float(self.solicitacoes.entry_mysd.get()) / float(self.frame_resul.entry_myrd.get()) < 1.0:
-            self.frame_resul.entry_myrd.configure(fg= 'green')
-        else:
-            self.frame_resul.entry_myrd.configure(fg= 'red')
+            #Momento em Y
+            self.calc_mom_y = Momento_Y(self.e, self.g, self.fy, self.frame_perfil.zy, self.frame_perfil.wy, self.frame_perfil.it, self.frame_perfil.bf, self.frame_perfil.tf,
+                                        self.frame_perfil.dlinha, self.frame_perfil.tw, self.lb, self.frame_perfil.ry, self.cb, self.frame_perfil.iy, self.frame_perfil.cw)
+            self.frame_resul.entry_myrd.insert(1,f"{self.calc_mom_y.myrd:.2f}")
+            if float(self.solicitacoes.entry_mysd.get()) / float(self.frame_resul.entry_myrd.get()) < 1.0:
+                self.frame_resul.entry_myrd.configure(fg= 'green')
+            else:
+                self.frame_resul.entry_myrd.configure(fg= 'red')
 
-        #Cortante em X 
-        self.calc_cort_x = Cortante_X(self.frame_perfil.dlinha, self.frame_perfil.tw, self.fy,self.e)
-        self.frame_resul.entry_vxrd.insert(1,f"{self.calc_cort_x.vrd:.2f}")
-        if float(self.solicitacoes.entry_vxsd.get()) / float(self.frame_resul.entry_vxrd.get()) < 1.0:
-            self.frame_resul.entry_vxrd.configure(fg= 'green')
-        else:
-            self.frame_resul.entry_vxrd.configure(fg= 'red')
+            #Cortante em X 
+            self.calc_cort_x = Cortante_X(self.frame_perfil.dlinha, self.frame_perfil.tw, self.fy,self.e)
+            self.frame_resul.entry_vxrd.insert(1,f"{self.calc_cort_x.vrd:.2f}")
+            if float(self.solicitacoes.entry_vxsd.get()) / float(self.frame_resul.entry_vxrd.get()) < 1.0:
+                self.frame_resul.entry_vxrd.configure(fg= 'green')
+            else:
+                self.frame_resul.entry_vxrd.configure(fg= 'red')
 
-        #Cortante em Y
-        self.calc_cort_y = Cortante_Y(self.frame_perfil.bf, self.frame_perfil.tf, self.fy,self.e, self.frame_perfil.tw)
-        self.frame_resul.entry_vyrd.insert(1,f"{self.calc_cort_y.vrd:.2f}")
-        if float(self.solicitacoes.entry_vysd.get()) / float(self.frame_resul.entry_vyrd.get()) < 1.0:
-            self.frame_resul.entry_vyrd.configure(fg= 'green')
-        else:
-            self.frame_resul.entry_vyrd.configure(fg= 'red')
+            #Cortante em Y
+            self.calc_cort_y = Cortante_Y(self.frame_perfil.bf, self.frame_perfil.tf, self.fy,self.e, self.frame_perfil.tw)
+            self.frame_resul.entry_vyrd.insert(1,f"{self.calc_cort_y.vrd:.2f}")
+            if float(self.solicitacoes.entry_vysd.get()) / float(self.frame_resul.entry_vyrd.get()) < 1.0:
+                self.frame_resul.entry_vyrd.configure(fg= 'green')
+            else:
+                self.frame_resul.entry_vyrd.configure(fg= 'red')
+
+        except ValueError:
+            messagebox.showerror("Erro de Valor", "Certifique-se de que todos os campos estão preenchidos corretamente com valores numéricos.")
+        except AttributeError as e:
+            messagebox.showerror("Erro de Atributo", f"Erro encontrado: {e}")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Ocorreu um erro inesperado: {e}")
+   
 
     def apagar(self):
         #apaga as entradas
@@ -314,12 +323,12 @@ class Frame_Perfil(Frame):
             PerfilGerdau('W 200 x 31.3', 31.3, 210, 134, 6.4, 10.2, 190, 170, 40.3, 3168, 301.7, 8.86, 338.6, 410, 61.2, 3.19, 94.00, 12.59, 40822),
             PerfilGerdau('W 200 x 35.9(H)', 35.9, 201, 165, 6.2, 10.2, 181, 161, 45.7, 3437, 342.0, 8.67, 379.2, 764, 92.6, 4.09, 141.00, 14.51, 69502),
             PerfilGerdau('W 200 x 41.7(H)', 41.7, 205, 166, 7.2, 11.8, 181, 157, 53.5, 4114, 401.4, 8.77, 448.6, 901, 108.5, 4.10, 165.70, 23.19, 83948),
-            PerfilGerdau('W 200 x 46.1(H)', 46.1, 203, 203, 7.2, 11.0, 181, 161, 58.6, 4543, 447.6, 8.81, 495.3, 1.535, 151.2, 5.12, 229.50, 22.01, 141342),
-            PerfilGerdau('W 200 x 52.0(H)', 52.0, 206, 204, 7.9, 12.6, 181, 157, 66.9, 5298, 514.4, 8.90, 572.5, 1.784, 174.9, 5.16, 265.80, 33.34, 166710),
-            PerfilGerdau('HP 200 x 53.0(H)', 53.0, 204, 207, 11.3, 11.3, 181, 161, 68.1, 4977, 488.0, 8.55, 551.3, 1.673, 161.7, 4.96, 248.60, 31.93, 155075),
-            PerfilGerdau('W 200 x 59.0(H)', 59.0, 210, 205, 9.1, 14.2, 182, 158, 76.0, 6140, 584.8, 8.99, 655.9, 2.041, 199.1, 5.18, 303.00, 47.69, 195418),
-            PerfilGerdau('W 200 x 71.0(H)', 71.0, 216, 206, 10.2, 17.4, 181, 161, 91.0, 7660, 709.2, 9.17, 803.2, 2.537, 246.3, 5.28, 374.50, 81.66, 249976),
-            PerfilGerdau('W 200 x 86.0(H)', 86.0, 222, 209, 13.0, 20.6, 181, 157, 110.9, 9498, 855.7, 9.26, 984.2, 3.139, 300.4, 5.32, 458.70, 142.19, 317844),
+            PerfilGerdau('W 200 x 46.1(H)', 46.1, 203, 203, 7.2, 11.0, 181, 161, 58.6, 4543, 447.6, 8.81, 495.3, 1535, 151.2, 5.12, 229.50, 22.01, 141342),
+            PerfilGerdau('W 200 x 52.0(H)', 52.0, 206, 204, 7.9, 12.6, 181, 157, 66.9, 5298, 514.4, 8.90, 572.5, 1784, 174.9, 5.16, 265.80, 33.34, 166710),
+            PerfilGerdau('HP 200 x 53.0(H)', 53.0, 204, 207, 11.3, 11.3, 181, 161, 68.1, 4977, 488.0, 8.55, 551.3, 1673, 161.7, 4.96, 248.60, 31.93, 155075),
+            PerfilGerdau('W 200 x 59.0(H)', 59.0, 210, 205, 9.1, 14.2, 182, 158, 76.0, 6140, 584.8, 8.99, 655.9, 2041, 199.1, 5.18, 303.00, 47.69, 195418),
+            PerfilGerdau('W 200 x 71.0(H)', 71.0, 216, 206, 10.2, 17.4, 181, 161, 91.0, 7660, 709.2, 9.17, 803.2, 2537, 246.3, 5.28, 374.50, 81.66, 249976),
+            PerfilGerdau('W 200 x 86.0(H)', 86.0, 222, 209, 13.0, 20.6, 181, 157, 110.9, 9498, 855.7, 9.26, 984.2, 3139, 300.4, 5.32, 458.70, 142.19, 317844),
             PerfilGerdau('W 250 x 17.9', 17.9, 251, 101, 4.8, 5.3, 240, 220, 23.1, 2291, 182.6, 9.96, 211.0, 91, 18.1, 1.99, 28.80, 2.54, 13735),
             PerfilGerdau('W 250 x 22.3', 22.3, 254, 102, 5.8, 6.9, 240, 220, 28.9, 2939, 231.4, 10.09, 267.7, 123, 24.1, 2.06, 38.40, 4.77, 18629),
             PerfilGerdau('W 250 x 25.3', 25.3, 257, 102, 6.1, 8.4, 240, 220, 32.6, 3473, 270.2, 10.31, 311.1, 149, 29.3, 2.14, 46.40, 7.06, 22955),
@@ -327,68 +336,68 @@ class Frame_Perfil(Frame):
             PerfilGerdau('W 250 x 32.7', 32.7, 258, 146, 6.1, 9.1, 240, 220, 42.1, 4937, 382.7, 10.83, 428.5, 473, 64.8, 3.35, 99.70, 10.44, 73104),
             PerfilGerdau('W 250 x 38.5', 38.5, 262, 147, 6.6, 11.2, 240, 220, 49.6, 6057, 462.4, 11.05, 517.8, 594, 80.8, 3.46, 124.10, 17.63, 93242),
             PerfilGerdau('W 250 x 44.8', 44.8, 266, 148, 7.6, 13.0, 240, 220, 57.6, 7158, 538.2, 11.15, 606.3, 704, 95.1, 3.50, 146.40, 27.14, 112398),
-            PerfilGerdau('HP 250 x 62.0(H)', 62.0, 246, 256, 10.5, 10.7, 225, 201, 79.6, 8728, 709.6, 10.47, 790.5, 2.995, 234.0, 6.13, 357.80, 33.46, 417130),
-            PerfilGerdau('W 250 x 73.0(H)', 73.0, 253, 254, 8.6, 14.2, 225, 201, 92.7, 11257, 889.9, 11.02, 983.3, 3.880, 305.5, 6.47, 463.10, 56.94, 552900),
-            PerfilGerdau('W 250 x 80.0(H)', 80.0, 256, 255, 9.4, 15.6, 225, 201, 101.9, 12550, 980.5, 11.10, 1.088, 4.313, 338.3, 6.51, 513.10, 75.02, 622878),
-            PerfilGerdau('HP 250 x 85.0(H)', 85.0, 254, 260, 14.4, 14.4, 225, 201, 108.5, 1228, 966.9, 10.64, 1.093, 4.225, 325.0, 6.24, 499.60, 82.07, 605403),
-            PerfilGerdau('W 250 x 89.0(H)', 89.0, 260, 256, 10.7, 17.3, 225, 201, 113.9, 14237, 1.095, 11.18, 1.224, 4.841, 378.2, 6.52, 574.30, 102.81, 712351),
-            PerfilGerdau('W 250 x 101.0(H)', 101.0, 264, 257, 11.9, 19.6, 225, 201, 128.7, 16352, 1.238, 11.27, 1.395, 5.549, 431.8, 6.57, 656.30, 147.70, 828031),
-            PerfilGerdau('W 250 x 115.0(H)', 115.0, 269, 259, 13.5, 22.1, 225, 201, 146.1, 18920, 1.406, 11.38, 1.597, 6.405, 494.6, 6.62, 752.70, 212.00, 975265),
+            PerfilGerdau('HP 250 x 62.0(H)', 62.0, 246, 256, 10.5, 10.7, 225, 201, 79.6, 8728, 709.6, 10.47, 790.5, 2995, 234.0, 6.13, 357.80, 33.46, 417130),
+            PerfilGerdau('W 250 x 73.0(H)', 73.0, 253, 254, 8.6, 14.2, 225, 201, 92.7, 11257, 889.9, 11.02, 983.3, 3880, 305.5, 6.47, 463.10, 56.94, 552900),
+            PerfilGerdau('W 250 x 80.0(H)', 80.0, 256, 255, 9.4, 15.6, 225, 201, 101.9, 12550, 980.5, 11.10, 1088, 4313, 338.3, 6.51, 513.10, 75.02, 622878),
+            PerfilGerdau('HP 250 x 85.0(H)', 85.0, 254, 260, 14.4, 14.4, 225, 201, 108.5, 1228, 966.9, 10.64, 1093, 4225, 325.0, 6.24, 499.60, 82.07, 605403),
+            PerfilGerdau('W 250 x 89.0(H)', 89.0, 260, 256, 10.7, 17.3, 225, 201, 113.9, 14237, 1.095, 11.18, 1224, 4841, 378.2, 6.52, 574.30, 102.81, 712351),
+            PerfilGerdau('W 250 x 101.0(H)', 101.0, 264, 257, 11.9, 19.6, 225, 201, 128.7, 16352, 1.238, 11.27, 1395, 5549, 431.8, 6.57, 656.30, 147.70, 828031),
+            PerfilGerdau('W 250 x 115.0(H)', 115.0, 269, 259, 13.5, 22.1, 225, 201, 146.1, 18920, 1.406, 11.38, 1597, 6405, 494.6, 6.62, 752.70, 212.00, 975265),
             PerfilGerdau('W 310 x 21.0', 21.0, 303, 101, 5.1, 5.7, 292, 272, 27.2, 3776, 249.2, 11.77, 291.9, 98, 19.5, 1.90, 31.40, 3.27, 21628),
             PerfilGerdau('W 310 x 23.8', 23.8, 305, 101, 5.6, 6.7, 292, 272, 30.7, 4346, 285.0, 11.89, 333.2, 116, 22.9, 1.94, 36.90, 4.65, 25594),
             PerfilGerdau('W 310 x 28.3', 28.3, 309, 102, 6.0, 8.9, 291, 271, 36.5, 5500, 356.0, 12.28, 412.0, 158, 31.0, 2.08, 49.40, 8.14, 35441),
             PerfilGerdau('W 310 x 32.7', 32.7, 313, 102, 6.6, 10.8, 291, 271, 42.1, 6570, 419.8, 12.49, 485.3, 192, 37.6, 2.13, 59.80, 12.91, 43612),
             PerfilGerdau('W 310 x 38.7', 38.7, 310, 165, 5.8, 9.7, 291, 271, 49.7, 8581, 553.6, 13.14, 615.4, 727, 88.1, 3.82, 134.90, 13.20, 163728),
             PerfilGerdau('W 310 x 44.5', 44.5, 313, 166, 6.6, 11.2, 291, 271, 57.2, 9997, 638.8, 13.22, 712.8, 855, 103.0, 3.87, 158.00, 19.90, 194433),
-            PerfilGerdau('W 310 x 52.0', 52.0, 317, 167, 7.6, 13.2, 291, 271, 67.0, 11909, 751.4, 13.33, 842.5, 1.026, 122.9, 3.91, 188.80, 31.81, 236422),
-            PerfilGerdau('HP 310 x 79.0(H)', 79.0, 299, 306, 11.0, 11.0, 277, 245, 100.0, 16316, 1.091, 12.77, 1.210, 5.258, 343.7, 7.25, 525.40, 46.72, 1089258),
-            PerfilGerdau('HP 310 x 93.0(H)', 93.0, 303, 308, 13.1, 13.1, 277, 245, 119.2, 19682, 1.299, 12.85, 1.450, 6.387, 414.7, 7.32, 635.50, 77.33, 1340320),
-            PerfilGerdau('W 310 x 97.0(H)', 97.0, 308, 305, 9.9, 15.4, 277, 245, 123.6, 22284, 1.447, 13.43, 1.594, 7.286, 477.8, 7.68, 725.00, 92.12, 1558682),
-            PerfilGerdau('W 310 x 107.0(H)', 107.0, 311, 306, 10.9, 17.0, 277, 245, 136.4, 24839, 1.597, 13.49, 1.768, 8.123, 530.9, 7.72, 806.10, 122.86, 1754271),
-            PerfilGerdau('HP 310 x 110.0(H)', 110.0, 308, 310, 15.4, 15.5, 277, 245, 141.0, 23703, 1.539, 12.97, 1.730, 7.707, 497.3, 7.39, 763.70, 125.66, 1646104),
-            PerfilGerdau('W 310 x 117.0(H)', 117.0, 314, 307, 11.9, 18.7, 277, 245, 149.9, 27563, 1.755, 13.56, 1.952, 9.024, 587.9, 7.76, 893.10, 161.61, 1965950),
-            PerfilGerdau('HP 310 x 125.0(H)', 125.0, 312, 312, 17.4, 17.4, 277, 245, 159.0, 27076, 1.735, 13.05, 1.963, 8.823, 565.6, 7.45, 870.60, 177.98, 1911029),
+            PerfilGerdau('W 310 x 52.0', 52.0, 317, 167, 7.6, 13.2, 291, 271, 67.0, 11909, 751.4, 13.33, 842.5, 1026, 122.9, 3.91, 188.80, 31.81, 236422),
+            PerfilGerdau('HP 310 x 79.0(H)', 79.0, 299, 306, 11.0, 11.0, 277, 245, 100.0, 16316, 1.091, 12.77, 1210, 5258, 343.7, 7.25, 525.40, 46.72, 1089258),
+            PerfilGerdau('HP 310 x 93.0(H)', 93.0, 303, 308, 13.1, 13.1, 277, 245, 119.2, 19682, 1.299, 12.85, 1450, 6387, 414.7, 7.32, 635.50, 77.33, 1340320),
+            PerfilGerdau('W 310 x 97.0(H)', 97.0, 308, 305, 9.9, 15.4, 277, 245, 123.6, 22284, 1.447, 13.43, 1594, 7286, 477.8, 7.68, 725.00, 92.12, 1558682),
+            PerfilGerdau('W 310 x 107.0(H)', 107.0, 311, 306, 10.9, 17.0, 277, 245, 136.4, 24839, 1.597, 13.49, 1768, 8123, 530.9, 7.72, 806.10, 122.86, 1754271),
+            PerfilGerdau('HP 310 x 110.0(H)', 110.0, 308, 310, 15.4, 15.5, 277, 245, 141.0, 23703, 1.539, 12.97, 1730, 7707, 497.3, 7.39, 763.70, 125.66, 1646104),
+            PerfilGerdau('W 310 x 117.0(H)', 117.0, 314, 307, 11.9, 18.7, 277, 245, 149.9, 27563, 1.755, 13.56, 1952, 9024, 587.9, 7.76, 893.10, 161.61, 1965950),
+            PerfilGerdau('HP 310 x 125.0(H)', 125.0, 312, 312, 17.4, 17.4, 277, 245, 159.0, 27076, 1.735, 13.05, 1963, 8823, 565.6, 7.45, 870.60, 177.98, 1911029),
             PerfilGerdau('W 360 x 32.9', 32.9, 349, 127, 5.8, 8.5, 332, 308, 42.1, 8358, 479.0, 14.09, 547.6, 291, 45.9, 2.63, 72.00, 9.15, 84111),
             PerfilGerdau('W 360 x 39.0', 39.0, 353, 128, 6.5, 10.7, 332, 308, 50.2, 10331, 585.3, 14.35, 667.7, 375, 58.6, 2.73, 91.90, 15.83, 109551),
             PerfilGerdau('W 360 x 44.0', 44.0, 352, 171, 6.9, 9.8, 332, 308, 57.7, 12258, 696.5, 14.58, 784.3, 818, 95.7, 3.77, 148.00, 16.70, 239091),
             PerfilGerdau('W 360 x 51.0', 51.0, 355, 171, 7.2, 11.6, 332, 308, 64.8, 14222, 801.2, 14.81, 899.5, 968, 113.3, 3.87, 174.70, 24.65, 284994),
-            PerfilGerdau('W 360 x 57.8', 57.8, 358, 172, 7.9, 13.1, 332, 308, 72.5, 16143, 901.8, 14.92, 1.014, 1.113, 129.4, 3.92, 199.80, 34.45, 330394),
-            PerfilGerdau('W 360 x 64.0', 64.0, 347, 203, 7.7, 13.5, 320, 288, 81.7, 17890, 1.031, 14.80, 1.145, 1.885, 185.7, 4.80, 284.50, 44.57, 523362),
-            PerfilGerdau('W 360 x 72.0', 72.0, 350, 204, 8.6, 15.1, 320, 288, 91.3, 20169, 1.152, 14.86, 1.285, 2.140, 209.8, 4.84, 321.80, 61.18, 599082),
-            PerfilGerdau('W 360 x 79.0', 79.0, 354, 205, 9.4, 16.8, 320, 288, 101.2, 22713, 1.283, 14.98, 1.437, 2.416, 235.7, 4.89, 361.90, 82.41, 685701),
-            PerfilGerdau('W 360 x 91.0(H)', 91.0, 353, 254, 9.5, 16.4, 320, 288, 115.9, 26755, 1.515, 15.19, 1.680, 4.483, 353.0, 6.22, 538.10, 92.61, 1268709),
-            PerfilGerdau('W 360 x 101.0(H)', 101.0, 357, 255, 10.5, 18.3, 320, 286, 129.5, 30279, 1.696, 15.29, 1.888, 5.063, 397.1, 6.25, 606.10, 128.47, 1450410),
-            PerfilGerdau('W 360 x 110.0(H)', 110.0, 360, 256, 11.4, 19.9, 320, 288, 140.6, 33155, 1.841, 15.36, 2.059, 5.570, 435.2, 6.29, 664.50, 161.93, 1609070),
-            PerfilGerdau('W 360 x 122.0(H)', 122.0, 363, 257, 13.0, 21.7, 320, 288, 155.3, 36599, 2.016, 15.35, 2.269, 6.147, 478.4, 6.29, 732.40, 212.70, 1787806),
+            PerfilGerdau('W 360 x 57.8', 57.8, 358, 172, 7.9, 13.1, 332, 308, 72.5, 16143, 901.8, 14.92, 1014, 1113, 129.4, 3.92, 199.80, 34.45, 330394),
+            PerfilGerdau('W 360 x 64.0', 64.0, 347, 203, 7.7, 13.5, 320, 288, 81.7, 17890, 1.031, 14.80, 1145, 1885, 185.7, 4.80, 284.50, 44.57, 523362),
+            PerfilGerdau('W 360 x 72.0', 72.0, 350, 204, 8.6, 15.1, 320, 288, 91.3, 20169, 1.152, 14.86, 1285, 2140, 209.8, 4.84, 321.80, 61.18, 599082),
+            PerfilGerdau('W 360 x 79.0', 79.0, 354, 205, 9.4, 16.8, 320, 288, 101.2, 22713, 1.283, 14.98, 1437, 2416, 235.7, 4.89, 361.90, 82.41, 685701),
+            PerfilGerdau('W 360 x 91.0(H)', 91.0, 353, 254, 9.5, 16.4, 320, 288, 115.9, 26755, 1.515, 15.19, 1680, 4483, 353.0, 6.22, 538.10, 92.61, 1268709),
+            PerfilGerdau('W 360 x 101.0(H)', 101.0, 357, 255, 10.5, 18.3, 320, 286, 129.5, 30279, 1.696, 15.29, 1888, 5063, 397.1, 6.25, 606.10, 128.47, 1450410),
+            PerfilGerdau('W 360 x 110.0(H)', 110.0, 360, 256, 11.4, 19.9, 320, 288, 140.6, 33155, 1.841, 15.36, 2059, 5570, 435.2, 6.29, 664.50, 161.93, 1609070),
+            PerfilGerdau('W 360 x 122.0(H)', 122.0, 363, 257, 13.0, 21.7, 320, 288, 155.3, 36599, 2.016, 15.35, 2269, 6147, 478.4, 6.29, 732.40, 212.70, 1787806),
             PerfilGerdau('W 410 x 38.8', 38.8, 399, 140, 6.4, 8.8, 381, 357, 50.3, 12777, 640.5, 15.94, 736.8, 404, 57.7, 2.83, 90.90, 11.69, 153190),
             PerfilGerdau('W 410 x 46.1', 46.1, 403, 140, 7.0, 11.2, 381, 357, 59.2, 15690, 778.7, 16.27, 891.1, 514, 73.4, 2.95, 115.20, 20.06, 196571),
-            PerfilGerdau('W 410 x 53.0', 53.0, 403, 177, 7.5, 10.9, 381, 357, 68.4, 18734, 929.7, 16.55, 1.052, 1.009, 114.0, 3.84, 176.90, 23.38, 387194),
-            PerfilGerdau('W 410 x 60.0', 60.0, 407, 178, 7.7, 12.8, 381, 357, 76.2, 21707, 1.066, 16.88, 1.201, 1.205, 135.4, 3.98, 209.20, 33.78, 467404),
-            PerfilGerdau('W 410 x 67.0', 67.0, 410, 179, 8.8, 14.4, 381, 357, 86.3, 24678, 1.203, 16.91, 1.362, 1.379, 154.1, 4.00, 239.00, 48.11, 538546),
-            PerfilGerdau('W 410 x 75.0', 75.0, 413, 180, 9.7, 16.0, 381, 357, 95.8, 27616, 1.337, 16.98, 1.518, 1.559, 173.2, 4.03, 269.10, 65.21, 612784),
-            PerfilGerdau('W 410 x 85.0', 85.0, 417, 181, 10.9, 18.2, 381, 357, 108.6, 31658, 1.518, 17.07, 1.731, 1.804, 199.3, 4.08, 310.40, 94.48, 715165),
-            PerfilGerdau('W 460 x 52.0', 52.0, 450, 152, 7.6, 10.8, 428, 404, 66.6, 21370, 949.8, 17.91, 1.095, 634, 83.5, 3.09, 131.70, 21.79, 304837),
-            PerfilGerdau('W 460 x 60.0', 60.0, 455, 153, 8.0, 13.3, 428, 404, 76.2, 25652, 1.127, 18.35, 1.292, 796, 104.1, 3.23, 163.40, 34.60, 387230),
-            PerfilGerdau('W 460 x 68.0', 68.0, 459, 154, 9.1, 15.4, 428, 404, 87.6, 29851, 1.300, 18.46, 1.495, 941, 122.2, 3.28, 192.40, 52.29, 461163),
-            PerfilGerdau('W 460 x 74.0', 74.0, 457, 190, 9.0, 14.5, 428, 404, 94.9, 33415, 1.462, 18.77, 1.657, 1.661, 174.8, 4.18, 271.30, 52.97, 811417),
-            PerfilGerdau('W 460 x 82.0', 82.0, 460, 191, 9.9, 16.0, 428, 404, 104.7, 37157, 1.615, 18.84, 1.836, 1.862, 195.0, 4.22, 303.30, 70.62, 915745),
-            PerfilGerdau('W 460 x 89.0', 89.0, 463, 192, 10.5, 17.7, 428, 404, 114.1, 41105, 1.775, 18.98, 2.019, 2.093, 218.0, 4.28, 339.00, 92.49, 1035073),
-            PerfilGerdau('W 460 x 97.0', 97.0, 466, 193, 11.4, 19.0, 428, 404, 123.4, 44658, 1.916, 19.03, 2.187, 2.283, 236.6, 4.30, 368.80, 115.05, 1137180),
-            PerfilGerdau('W 460 x 106.0', 106.0, 469, 194, 12.6, 20.6, 428, 404, 135.1, 48978, 2.088, 19.04, 2.394, 2.515, 259.3, 4.32, 405.70, 148.19, 1260063),
-            PerfilGerdau('W 530 x 66.0', 66.0, 525, 165, 8.9, 11.4, 502, 478, 83.6, 34971, 1.332, 20.46, 1.558, 857, 103.9, 3.20, 166.00, 31.52, 562854),
-            PerfilGerdau('W 530 x 72.0', 72.0, 524, 207, 9.0, 10.9, 502, 478, 91.6, 39969, 1.525, 20.89, 1.755, 1.615, 156.0, 4.20, 244.60, 33.41, 1060548),
-            PerfilGerdau('W 530 x 74.0', 74.0, 529, 166, 9.7, 13.6, 502, 478, 95.1, 40969, 1.548, 20.76, 1.804, 1.041, 125.5, 3.31, 200.10, 47.39, 688558),
-            PerfilGerdau('W 530 x 82.0', 82.0, 528, 209, 9.5, 13.3, 501, 477, 104.5, 47569, 1.801, 21.34, 2.058, 2.028, 194.1, 4.41, 302.70, 51.23, 1340255),
-            PerfilGerdau('W 530 x 85.0', 85.0, 535, 166, 10.3, 16.5, 502, 478, 107.7, 48453, 1.811, 21.21, 2.099, 1.263, 152.2, 3.42, 241.60, 72.93, 845463),
-            PerfilGerdau('W 530 x 92.0', 92.0, 533, 209, 10.2, 15.6, 502, 478, 117.6, 55157, 2.069, 21.65, 2.359, 2.379, 227.6, 4.50, 354.70, 75.50, 1588565),
-            PerfilGerdau('W 530 x 101.0', 101.0, 537, 210, 10.9, 17.4, 502, 470, 130.0, 62198, 2.316, 21.87, 2.640, 2.693, 256.5, 4.55, 400.60, 106.04, 1812734),
-            PerfilGerdau('W 530 x 109.0', 109.0, 539, 211, 11.6, 18.8, 501, 469, 139.7, 67226, 2.494, 21.94, 2.847, 2.952, 279.8, 4.60, 437.40, 131.38, 1991291),
-            PerfilGerdau('W 610 x 101.0', 101.0, 603, 228, 10.5, 14.9, 573, 541, 130.3, 77003, 2.554, 24.31, 2.922, 2.951, 258.8, 4.76, 405.00, 81.68, 2544966),
-            PerfilGerdau('W 610 x 113.0', 113.0, 608, 228, 11.2, 17.3, 573, 541, 145.3, 88196, 2.901, 24.64, 3.312, 3.426, 300.5, 4.86, 469.70, 116.50, 2981078),
-            PerfilGerdau('W 610 x 125.0', 125.0, 612, 229, 11.9, 19.6, 573, 541, 160.1, 99184, 3.241, 24.89, 3.697, 3.933, 343.5, 4.96, 536.30, 159.50, 3441766),
-            PerfilGerdau('W 610 x 140.0', 140.0, 617, 230, 13.1, 22.2, 573, 541, 179.3, 112619, 3.650, 25.06, 4.173, 4.515, 392.6, 5.02, 614.00, 225.01, 3981687),
-            PerfilGerdau('W 610 x 155.0', 155.0, 611, 324, 12.7, 19.0, 573, 541, 198.1, 129583, 4.241, 25.58, 4.749, 10.783, 665.6, 7.38, 1.022, 200.77, 9436714),
-            PerfilGerdau('W 610 x 174.0', 174.0, 616, 325, 14.0, 21.6, 573, 541, 222.8, 147754, 4.797, 25.75, 5.383, 12.374, 761.5, 7.45, 1.171, 286.88, 10915665)
+            PerfilGerdau('W 410 x 53.0', 53.0, 403, 177, 7.5, 10.9, 381, 357, 68.4, 18734, 929.7, 16.55, 1052, 1009, 114.0, 3.84, 176.90, 23.38, 387194),
+            PerfilGerdau('W 410 x 60.0', 60.0, 407, 178, 7.7, 12.8, 381, 357, 76.2, 21707, 1.066, 16.88, 1201, 1205, 135.4, 3.98, 209.20, 33.78, 467404),
+            PerfilGerdau('W 410 x 67.0', 67.0, 410, 179, 8.8, 14.4, 381, 357, 86.3, 24678, 1.203, 16.91, 1362, 1379, 154.1, 4.00, 239.00, 48.11, 538546),
+            PerfilGerdau('W 410 x 75.0', 75.0, 413, 180, 9.7, 16.0, 381, 357, 95.8, 27616, 1.337, 16.98, 1518, 1559, 173.2, 4.03, 269.10, 65.21, 612784),
+            PerfilGerdau('W 410 x 85.0', 85.0, 417, 181, 10.9, 18.2, 381, 357, 108.6, 31658, 1.518, 17.07, 1731, 1804, 199.3, 4.08, 310.40, 94.48, 715165),
+            PerfilGerdau('W 460 x 52.0', 52.0, 450, 152, 7.6, 10.8, 428, 404, 66.6, 21370, 949.8, 17.91, 1095, 634, 83.5, 3.09, 131.70, 21.79, 304837),
+            PerfilGerdau('W 460 x 60.0', 60.0, 455, 153, 8.0, 13.3, 428, 404, 76.2, 25652, 1.127, 18.35, 1292, 796, 104.1, 3.23, 163.40, 34.60, 387230),
+            PerfilGerdau('W 460 x 68.0', 68.0, 459, 154, 9.1, 15.4, 428, 404, 87.6, 29851, 1.300, 18.46, 1495, 941, 122.2, 3.28, 192.40, 52.29, 461163),
+            PerfilGerdau('W 460 x 74.0', 74.0, 457, 190, 9.0, 14.5, 428, 404, 94.9, 33415, 1.462, 18.77, 1657, 1661, 174.8, 4.18, 271.30, 52.97, 811417),
+            PerfilGerdau('W 460 x 82.0', 82.0, 460, 191, 9.9, 16.0, 428, 404, 104.7, 37157, 1.615, 18.84, 1836, 1862, 195.0, 4.22, 303.30, 70.62, 915745),
+            PerfilGerdau('W 460 x 89.0', 89.0, 463, 192, 10.5, 17.7, 428, 404, 114.1, 41105, 1.775, 18.98, 2019, 2093, 218.0, 4.28, 339.00, 92.49, 1035073),
+            PerfilGerdau('W 460 x 97.0', 97.0, 466, 193, 11.4, 19.0, 428, 404, 123.4, 44658, 1.916, 19.03, 2187, 2283, 236.6, 4.30, 368.80, 115.05, 1137180),
+            PerfilGerdau('W 460 x 106.0', 106.0, 469, 194, 12.6, 20.6, 428, 404, 135.1, 48978, 2.088, 19.04, 2394, 2515, 259.3, 4.32, 405.70, 148.19, 1260063),
+            PerfilGerdau('W 530 x 66.0', 66.0, 525, 165, 8.9, 11.4, 502, 478, 83.6, 34971, 1.332, 20.46, 1558, 857, 103.9, 3.20, 166.00, 31.52, 562854),
+            PerfilGerdau('W 530 x 72.0', 72.0, 524, 207, 9.0, 10.9, 502, 478, 91.6, 39969, 1.525, 20.89, 1755, 1615, 156.0, 4.20, 244.60, 33.41, 1060548),
+            PerfilGerdau('W 530 x 74.0', 74.0, 529, 166, 9.7, 13.6, 502, 478, 95.1, 40969, 1.548, 20.76, 1804, 1041, 125.5, 3.31, 200.10, 47.39, 688558),
+            PerfilGerdau('W 530 x 82.0', 82.0, 528, 209, 9.5, 13.3, 501, 477, 104.5, 47569, 1.801, 21.34, 2058, 2028, 194.1, 4.41, 302.70, 51.23, 1340255),
+            PerfilGerdau('W 530 x 85.0', 85.0, 535, 166, 10.3, 16.5, 502, 478, 107.7, 48453, 1.811, 21.21, 2099, 1263, 152.2, 3.42, 241.60, 72.93, 845463),
+            PerfilGerdau('W 530 x 92.0', 92.0, 533, 209, 10.2, 15.6, 502, 478, 117.6, 55157, 2.069, 21.65, 2359, 2379, 227.6, 4.50, 354.70, 75.50, 1588565),
+            PerfilGerdau('W 530 x 101.0', 101.0, 537, 210, 10.9, 17.4, 502, 470, 130.0, 62198, 2.316, 21.87, 2640, 2693, 256.5, 4.55, 400.60, 106.04, 1812734),
+            PerfilGerdau('W 530 x 109.0', 109.0, 539, 211, 11.6, 18.8, 501, 469, 139.7, 67226, 2.494, 21.94, 2847, 2952, 279.8, 4.60, 437.40, 131.38, 1991291),
+            PerfilGerdau('W 610 x 101.0', 101.0, 603, 228, 10.5, 14.9, 573, 541, 130.3, 77003, 2.554, 24.31, 2922, 2951, 258.8, 4.76, 405.00, 81.68, 2544966),
+            PerfilGerdau('W 610 x 113.0', 113.0, 608, 228, 11.2, 17.3, 573, 541, 145.3, 88196, 2.901, 24.64, 3312, 3426, 300.5, 4.86, 469.70, 116.50, 2981078),
+            PerfilGerdau('W 610 x 125.0', 125.0, 612, 229, 11.9, 19.6, 573, 541, 160.1, 99184, 3.241, 24.89, 3697, 3933, 343.5, 4.96, 536.30, 159.50, 3441766),
+            PerfilGerdau('W 610 x 140.0', 140.0, 617, 230, 13.1, 22.2, 573, 541, 179.3, 112619, 3.650, 25.06, 4173, 4515, 392.6, 5.02, 614.00, 225.01, 3981687),
+            PerfilGerdau('W 610 x 155.0', 155.0, 611, 324, 12.7, 19.0, 573, 541, 198.1, 129583, 4.241, 25.58, 4749, 10783, 665.6, 7.38, 1.022, 200.77, 9436714),
+            PerfilGerdau('W 610 x 174.0', 174.0, 616, 325, 14.0, 21.6, 573, 541, 222.8, 147754, 4.797, 25.75, 5383, 12374, 761.5, 7.45, 1.171, 286.88, 10915665)
         ]
 
         label1 = Label(self, text = "Escolha o perfil")
@@ -426,8 +435,8 @@ class Frame_Perfil(Frame):
     def mostra_prop(self):
         self.frame_prop = Toplevel(self)
         self.frame_prop.title('Propriedades do Perfil')
-        self.label_prop = Label(self.frame_prop, text= 'Aqui vão as propriedades do perfil')
-        self.label_prop.grid(row = 0 , column= 0, padx=15)
+        self.label_prop = Label(self.frame_prop, text= 'Aqui vão as propriedades do perfil', anchor='w', justify='left')
+        self.label_prop.grid(row = 0 , column= 0, padx=15, sticky='w')
 
         #pega as propriedades do perfil escolhido
         perfil_selecionado = self.cmb_perfil.get()
@@ -436,6 +445,7 @@ class Frame_Perfil(Frame):
         self.peso = perfil_selecionado_obj.peso
         self.prop = f''' 
         Perfil: {perfil_selecionado_obj.nome_perfil}
+
         Peso: {perfil_selecionado_obj.peso} kg/m
         d: {perfil_selecionado_obj.d} mm
         bf: {perfil_selecionado_obj.bf} mm
@@ -978,17 +988,7 @@ class Gerar_pdf:
             with doc.create(Math()):
                 doc.append(NoEscape(r" N_{c,rd} = \frac{\chi \cdot A_{ef} \cdot f_y}{1.10}"))
                 doc.append(NoEscape(r" = \frac{%.2f \cdot %.2f \cdot %.2f}{1.10}" % (self.x, self.a_ef, self.fy)))
-                doc.append(NoEscape(f" = {self.ncrd:.3f} \u00A0 kN \n")) 
-
-
-
-
-
-
-
-
-
-
+                doc.append(NoEscape(f" = {self.ncrd:.2f} \u00A0 kN \n")) 
 
 
         #Cortante X----------------------------------------------------------------------------
@@ -1011,7 +1011,7 @@ class Gerar_pdf:
         with doc.create(Subsection("Cálculo da Força Resistente a Cortante em X (Item 5.4.3.1)")):
             doc.append("Área efetiva de cisalhamento:")
             with doc.create(Math()):
-                doc.append(NoEscape(r"A_w = d' \cdot t_w = (%.2f \cdot %.2f)" % (self.dlinha, self.tw)))
+                doc.append(NoEscape(r"A_w = d' \cdot t_w = %.2f \cdot %.2f" % (self.dlinha, self.tw)))
                 doc.append(NoEscape(f"= {self.aw:.2f}  \u00A0 {{cm}}^2"))  # LaTeX notation for cm²
 
             doc.append("Força cortante de plastificação:")
@@ -1201,7 +1201,7 @@ class Gerar_pdf:
                 doc.append(NoEscape(r'\lambda_p = 0.38 \cdot \sqrt{\frac{E}{f_y}} = 0.38 \cdot \sqrt{\frac{%.0f}{%.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_p_mesa)))
             doc.append("Lambda R:")
             with doc.create(Math()):
-                doc.append(NoEscape(r'\lambda_r = 0.83 \cdot \sqrt{\frac{E}{0.7 \cdot f_y}} = 5.70 \cdot \sqrt{\frac{%.0f}{0.7 \cdot %.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_r_mesa)))
+                doc.append(NoEscape(r'\lambda_r = 0.83 \cdot \sqrt{\frac{E}{0.7 \cdot f_y}} = 0.83 \cdot \sqrt{\frac{%.0f}{0.7 \cdot %.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_r_mesa)))
             
             doc.append("Momento fletor resistente:")
             with doc.create(Math()):
@@ -1328,7 +1328,9 @@ class Gerar_pdf:
 
 def main():
     app = Principal()
+    app.wm_attributes('-toolwindow', 'True')
     app.mainloop()
+
 
 if __name__ == "__main__":
     main()
