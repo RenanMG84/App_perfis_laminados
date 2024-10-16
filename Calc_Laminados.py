@@ -632,7 +632,8 @@ class Momento_X:
 
         #Momentos de plastificação e residual
         self.mpl = self.zx * self.fy
-        self.mr = self.wx * 0.7 * self.fy      
+        self.mr = self.wx * 0.7 * self.fy    
+        self.mr_fla = self.wx * self.fy    
 
         #Flambagem local da mesa - FLM
         #esbeltez da mesa
@@ -664,7 +665,7 @@ class Momento_X:
             self.mrd_alma = self.mpl / 1.10
         else:
             if self.esb_alma > self.esb_lim_p_alma and self.esb_alma <= self.esb_lim_r_alma:
-                self.mrd_alma = (self.mpl - (self.mpl - self.mr)* ((self.esb_alma - self.esb_lim_p_alma) / (self.esb_lim_r_alma - self.esb_lim_p_alma))) / 1.10
+                self.mrd_alma = (self.mpl - (self.mpl - self.mr_fla)* ((self.esb_alma - self.esb_lim_p_alma) / (self.esb_lim_r_alma - self.esb_lim_p_alma))) / 1.10
             else:
                 self.mrd_alma = 0
 
@@ -684,7 +685,7 @@ class Momento_X:
             if self.esb_flt > self.esb_lim_p_flt and self.esb_flt <= self.esb_lim_r_flt:
                 self.mrd_flt = (self.mpl - (self.mpl - self.mr)* ((self.esb_flt - self.esb_lim_p_flt) / (self.esb_lim_r_flt - self.esb_lim_p_flt))) / 1.10
             else:
-                self.mcr_flt = ((self.cb * math.pow(math.pi, 2.0)* self.e * self.iy) / math.pow(self.lb, 2.0)) * math.sqrt((self.cw / self.iy) * (1 + (0.039 * self.it * math.pow(self.lb, 2.0)) / (self.cw)))
+                self.mcr_flt = ((self.cb * math.pow(math.pi, 2.0)* self.e * self.iy) / math.pow(self.lb, 2.0)) * math.sqrt((self.cw / self.iy) * (1 + (0.0039 * self.it * math.pow(self.lb, 2.0)) / (self.cw)))
                 self.mrd_flt = self.mcr_flt / 1.10
 
         #momento fletor máximo
@@ -717,6 +718,7 @@ class Momento_Y:
         #Momentos de plastificação e residual
         self.mpl = self.zy * self.fy
         self.mr = self.wy * 0.7 * self.fy      
+        self.mr_fla = self.wy * self.fy  
 
         #Flambagem local da mesa - FLM
         #esbeltez da mesa
@@ -750,7 +752,7 @@ class Momento_Y:
             self.mrd_alma = self.mpl / 1.10
         else:
             if self.esb_alma > self.esb_lim_p_alma and self.esb_alma <= self.esb_lim_r_alma:
-                self.mrd_alma = (self.mpl - (self.mpl - self.mr)* ((self.esb_alma - self.esb_lim_p_alma) / (self.esb_lim_r_alma - self.esb_lim_p_alma))) / 1.10
+                self.mrd_alma = (self.mpl - (self.mpl - self.mr_fla) * ((self.esb_alma - self.esb_lim_p_alma) / (self.esb_lim_r_alma - self.esb_lim_p_alma))) / 1.10
             else:
                 self.mrd_alma = self.mom_cr_fla / 1.10 #kN*cm
 
@@ -1143,7 +1145,9 @@ class Gerar_pdf:
         self.esb_lim_r_flt = self.momx.esb_lim_r_flt
         self.mrd_fla = self.momx.mrd_alma
         self.mrd_flm = self.momx.mrd_mesa
+        self.mrd_flt = self.momx.mrd_flt
         self.mpl = self.momx.mpl
+        self.mr_fla = self.momx.mr_fla
         self.mr = self.momx.mr
         self.zx = self.momx.zx
         self.wx = self.momx.wx
@@ -1151,25 +1155,23 @@ class Gerar_pdf:
         self.e = self.momx.e
         self.lb = self.momx.lb
         self.ry = self.momx.ry
-
+        self.b1 = self.momx.b1
+        self.cb = self.momx.cb
 
         # Seção principal
         with doc.create(Section("Cálculo do Momento Fletor")):
             doc.append(f"")
 
-        # Cálculo da força resistente a cortante
-        with doc.create(Subsection("Cálculo do momento fletor resistente (Item D.2.1)")):
+        # Cálculo do momento fletor resistente
+        with doc.create(Subsection("Cálculo do momento fletor resistente em X (Item D.2.1)")):
             doc.append("Momento fletor de plastificação: ")
             with doc.create(Math()):
-                doc.append(NoEscape(r"M_{pl} = z_x \cdot f_y = %.2f \cdot %.2f = %.2f \  \text{kN} \cdot \text{cm}^2" % (self.zx, self.fy, self.mpl)))
-            doc.append("Momento fletor residual: ")
-            with doc.create(Math()):
-                doc.append(NoEscape(r"M_{r} = 0.7 \cdot w_x \cdot f_y = 0.7 \cdot %.2f \cdot %.2f = %.2f \  \text{kN} \cdot \text{cm}^2" % (self.wx, self.fy, self.mr)))
-            
+                doc.append(NoEscape(r"M_{pl} = z_x \cdot f_y = %.2f \cdot %.2f = %.2f \  \text{kN} \cdot \text{cm}" % (self.zx, self.fy, self.mpl)))
+
             doc.append("Flambagem local da alma - FLA:")
             with doc.create(Math()):
                 doc.append(NoEscape(r"\lambda = \frac{d'}{t_w} = \frac{%.2f}{%.2f} " % (self.dlinha, self.tw)))
-                doc.append(NoEscape(f"= {self.esb_alma:.2f} "))  # LaTeX notation for cm²
+                doc.append(NoEscape(f"= {self.esb_alma:.2f} "))
             doc.append("Lambda P:")
             with doc.create(Math()):
                 doc.append(NoEscape(r'\lambda_p = 3.76 \cdot \sqrt{\frac{E}{f_y}} = 3.76 \cdot \sqrt{\frac{%.0f}{%.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_p_alma)))
@@ -1180,12 +1182,12 @@ class Gerar_pdf:
             doc.append("Momento fletor resistente:")
             with doc.create(Math()):
                 if self.esb_alma <= self.esb_lim_p_alma:
-                    doc.append(NoEscape(r"M_{rd} = \frac{M_{pl}}{1.10} = \frac{%.2f}{1.10} = %.2f \  \text{kN} \cdot \text{cm}^2" % (self.mpl, self.mrd_fla)))
+                    doc.append(NoEscape(r"M_{rd} = \frac{M_{pl}}{1.10} = \frac{%.2f}{1.10} = %.2f \  \text{kN} \cdot \text{cm}" % (self.mpl, self.mrd_fla)))
                 else:
                     if self.esb_alma > self.esb_lim_p_alma and self.esb_alma <= self.esb_lim_r_alma:
                         doc.append(NoEscape(r"M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)"))
-                        doc.append(NoEscape(r" = \frac{1}{1.10} \cdot \left( %.2f - \left( %.2f - %.2f \right) \cdot \frac{%.2f - %.2f}{%.2f - %.2f} \right)" % (self.mpl, self.mpl, self.mr, self.esb_alma, self.esb_lim_p_alma, self.esb_lim_r_alma, self.esb_lim_p_alma )))
-                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm}^2 " %(self.mrd_fla)))
+                        doc.append(NoEscape(r" = \frac{1}{1.10} \cdot \left( %.2f - \left( %.2f - %.2f \right) \cdot \frac{%.2f - %.2f}{%.2f - %.2f} \right)" % (self.mpl, self.mpl, self.mr_fla, self.esb_alma, self.esb_lim_p_alma, self.esb_lim_r_alma, self.esb_lim_p_alma )))
+                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm} " %(self.mrd_fla)))
                     else:
                         doc.append("Viga esbelta - Não aplicável a FLA")
             
@@ -1193,7 +1195,7 @@ class Gerar_pdf:
             doc.append("Flambagem local da mesa - FLM:")
             with doc.create(Math()):
                 doc.append(NoEscape(r"\lambda = \frac{b_f}{2 \cdot t_f} = \frac{%.2f}{%.2f} " % (self.bf, self.tf)))
-                doc.append(NoEscape(f"= {self.esb_mesa:.2f} "))  # LaTeX notation for cm²
+                doc.append(NoEscape(f"= {self.esb_mesa:.2f} ")) 
             doc.append("Lambda P:")
             with doc.create(Math()):
                 doc.append(NoEscape(r'\lambda_p = 0.38 \cdot \sqrt{\frac{E}{f_y}} = 0.38 \cdot \sqrt{\frac{%.0f}{%.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_p_mesa)))
@@ -1204,21 +1206,122 @@ class Gerar_pdf:
             doc.append("Momento fletor resistente:")
             with doc.create(Math()):
                 if self.esb_mesa <= self.esb_lim_p_mesa:
-                    doc.append(NoEscape(r"M_{rd} = \frac{M_{pl}}{1.10} = \frac{%.2f}{1.10} = %.2f \  \text{kN} \cdot \text{cm}^2" % (self.mpl, self.mrd_flm)))
+                    doc.append(NoEscape(r"M_{rd} = \frac{M_{pl}}{1.10} = \frac{%.2f}{1.10} = %.2f \  \text{kN} \cdot \text{cm}" % (self.mpl, self.mrd_flm)))
                 else:
                     if self.esb_mesa > self.esb_lim_p_mesa and self.esb_mesa <= self.esb_lim_r_mesa:
                         doc.append(NoEscape(r"M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)"))
                         doc.append(NoEscape(r" = \frac{1}{1.10} \cdot \left( %.2f - \left( %.2f - %.2f \right) \cdot \frac{%.2f - %.2f}{%.2f - %.2f} \right)" % (self.mpl, self.mpl, self.mr, self.esb_mesa, self.esb_lim_p_mesa, self.esb_lim_r_mesa, self.esb_lim_p_mesa )))
-                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm}^2 " %(self.mrd_flm)))
+                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm} " %(self.mrd_flm)))
                     else:
-                        doc.append(NoEscape(r"M_{cr} = \frac{0.69 \cdot E \cdot w_x}{\lambda^2} = \frac{0.69 \cdot %.0f \cdot %.2f}{%.2f^2} = %.2f \  \text{kN} \cdot \text{cm}^2" % (self.e, self.wx, self.esb_mesa, self.mrd_flm)))
+                        doc.append(NoEscape(r"M_{cr} = \frac{0.69 \cdot E \cdot w_x}{\lambda^2} = \frac{0.69 \cdot %.0f \cdot %.2f}{%.2f^2} = %.2f \  \text{kN} \cdot \text{cm}" % (self.e, self.wx, self.esb_mesa, self.mrd_flm)))
 
             doc.append("Flambagem lateral com torção - FLT:")
             with doc.create(Math()):
                 doc.append(NoEscape(r"\lambda = \frac{L_b}{r_y} = \frac{%.2f}{%.2f}" % (self.lb, self.ry)))
-                doc.append(NoEscape(f"= {self.esb_mesa:.2f} "))  # LaTeX notation for cm²
+                doc.append(NoEscape(f"= {self.esb_flt:.2f} ")) 
+            doc.append("Lambda P:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\lambda_p = 1.76 \cdot \sqrt{\frac{E}{f_y}} = 1.76 \cdot \sqrt{\frac{%.0f}{%.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_p_flt)))
+            doc.append("Lambda R:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\beta_1 = \frac{ \left( f_y - \sigma_r \right) \cdot w_x}{E \cdot i_t} = \frac{ \left( %.2f - 0.3 \cdot %.2f \right) \cdot %.2f}{%.2f \cdot %.2f}' % (self.fy, self.fy, self.wx, self.e, self.it)))
+                doc.append(NoEscape(f"= {self.b1:.2f} "))
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\lambda_r = \frac{1.38 \cdot C_b \sqrt{I_y \cdot I_t}}{r_y \cdot I_t \cdot \beta_1} \cdot \sqrt{1 + \sqrt{1 + \frac{27 \cdot C_w \cdot \beta_1^2}{C_b^2 \cdot I_y}}}' ))
+                doc.append(NoEscape(r'= \frac{1.38 \cdot %.2f \sqrt{%.2f \cdot %.2f}}{%.2f \cdot %.2f \cdot %.2f} \cdot \sqrt{1 + \sqrt{1 + \frac{27 \cdot %.0f \cdot %.2f^2}{%.2f^2 \cdot %.2f}}}'%
+                                                         (self.cb, self.iy, self.it, self.ry, self.it, self.b1, self.cw, self.b1, self.cb, self.iy ) ))
+                doc.append(NoEscape(f"= {self.esb_lim_r_flt:.2f} "))
 
+            doc.append("Momento fletor resistente:")
+            with doc.create(Math()):
+                if self.esb_flt <= self.esb_lim_p_flt:
+                    doc.append(NoEscape(r"M_{rd} = \frac{M_{pl}}{1.10} = \frac{%.2f}{1.10} = %.2f \  \text{kN} \cdot \text{cm}" % (self.mpl, self.mrd_flt)))
+                else:
+                    if self.esb_flt > self.esb_lim_p_flt and self.esb_flt <= self.esb_lim_r_flt:
+                        doc.append(NoEscape(r"M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)"))
+                        doc.append(NoEscape(r" = \frac{1}{1.10} \cdot \left( %.2f - \left( %.2f - %.2f \right) \cdot \frac{%.2f - %.2f}{%.2f - %.2f} \right)" % (self.mpl, self.mpl, self.mr, self.esb_flt, self.esb_lim_p_flt, self.esb_lim_r_flt, self.esb_lim_p_flt )))
+                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm} " %(self.mrd_flt)))
+                    else:
+                        doc.append(NoEscape(r"M_{cr} = \frac{C_b \cdot \pi^2 \cdot E \cdot I_y}{L_b^2} \cdot \sqrt{ \frac{C_w}{I_y} \cdot \left( 1 + 0.0039 \cdot \frac {I_t \cdot L_b^2}{C_w}\right)}"))
+                        doc.append(NoEscape(r"= \frac{%.2f \cdot \pi^2 \cdot %.2f \cdot %.2f}{%.2f^2} \cdot \sqrt{ \frac{%.0f}{%.2f} \cdot \left( 1 + 0.0039 \cdot \frac {%.2f \cdot %.2f^2}{%.0f}\right)}" %
+                                                            (self.cb, self.e, self.iy, self.lb, self.cw, self.iy, self.it, self.lb, self.cw)))
+                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm} " %(self.mrd_flt)))
+
+        #Momento Y----------------------------------------------------------------------------
+        self.dlinha = self.momy.dlinha
+        self.tw = self.momy.tw
+        self.bf = self.momy.bf
+        self.tf = self.momy.tf
+        self.esb_alma = self.momy.esb_alma
+        self.esb_lim_p_alma = self.momy.esb_lim_p_alma
+        self.esb_lim_r_alma = self.momy.esb_lim_r_alma
+        self.esb_mesa = self.momy.esb_mesa
+        self.esb_lim_p_mesa = self.momy.esb_lim_p_mesa
+        self.esb_lim_r_mesa = self.momy.esb_lim_r_mesa
+        self.mrd_fla = self.momy.mrd_alma
+        self.mrd_flm = self.momy.mrd_mesa
+        self.mpl = self.momy.mpl
+        self.mr = self.momy.mr
+        self.mr_fla = self.momy.mr_fla
+        self.wy = self.momy.wy
+        self.fy = self.momy.fy
+        self.e = self.momy.e
+        self.ry = self.momy.ry
+        self.cb = self.momy.cb
+        self.mom_cr_fla = self.momy.mom_cr_fla
+
+        # Cálculo do momento fletor resistente
+        with doc.create(Subsection("Cálculo do momento fletor resistente em Y (Item D.2.1)")):
+
+            doc.append("Flambagem local da alma - FLA:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\lambda = \frac{d'}{t_w} = \frac{%.2f}{%.2f} " % (self.dlinha, self.tw)))
+                doc.append(NoEscape(f"= {self.esb_alma:.2f} "))
+            doc.append("Lambda P:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\lambda_p = 1.12 \cdot \sqrt{\frac{E}{f_y}} = 1.12 \cdot \sqrt{\frac{%.0f}{%.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_p_alma)))
+            doc.append("Lambda R:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\lambda_r = 1.40 \cdot \sqrt{\frac{E}{f_y}} = 1.40 \cdot \sqrt{\frac{%.0f}{%.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_r_alma)))
             
+            doc.append("Momento fletor resistente:")
+            with doc.create(Math()):
+                if self.esb_alma <= self.esb_lim_p_alma:
+                    doc.append(NoEscape(r"M_{rd} = \frac{M_{pl}}{1.10} = \frac{%.2f}{1.10} = %.2f \  \text{kN} \cdot \text{cm}" % (self.mpl, self.mrd_fla)))
+                else:
+                    if self.esb_alma > self.esb_lim_p_alma and self.esb_alma <= self.esb_lim_r_alma:
+                        doc.append(NoEscape(r"M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)"))
+                        doc.append(NoEscape(r" = \frac{1}{1.10} \cdot \left( %.2f - \left( %.2f - %.2f \right) \cdot \frac{%.2f - %.2f}{%.2f - %.2f} \right)" % (self.mpl, self.mpl, self.mr_fla, self.esb_alma, self.esb_lim_p_alma, self.esb_lim_r_alma, self.esb_lim_p_alma )))
+                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm} " %(self.mrd_fla)))
+                    else:
+                        doc.append(NoEscape(r"M_{cr} = W_y \cdot f_y = %.2f \cdot %.2f = %.2f \  \text{kN} \cdot \text{cm}" % (self.wy, self.fy, self.mom_cr_fla)))
+            
+
+            doc.append("Flambagem local da mesa - FLM:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r"\lambda = \frac{b_f}{2 \cdot t_f} = \frac{%.2f}{%.2f} " % (self.bf, self.tf)))
+                doc.append(NoEscape(f"= {self.esb_mesa:.2f} ")) 
+            doc.append("Lambda P:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\lambda_p = 0.38 \cdot \sqrt{\frac{E}{f_y}} = 0.38 \cdot \sqrt{\frac{%.0f}{%.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_p_mesa)))
+            doc.append("Lambda R:")
+            with doc.create(Math()):
+                doc.append(NoEscape(r'\lambda_r = 0.83 \cdot \sqrt{\frac{E}{0.7 \cdot f_y}} = 0.83 \cdot \sqrt{\frac{%.0f}{0.7 \cdot %.2f}} = %.2f' % (self.e, self.fy, self.esb_lim_r_mesa)))
+            
+            doc.append("Momento fletor resistente:")
+            with doc.create(Math()):
+                if self.esb_mesa <= self.esb_lim_p_mesa:
+                    doc.append(NoEscape(r"M_{rd} = \frac{M_{pl}}{1.10} = \frac{%.2f}{1.10} = %.2f \  \text{kN} \cdot \text{cm}" % (self.mpl, self.mrd_flm)))
+                else:
+                    if self.esb_mesa > self.esb_lim_p_mesa and self.esb_mesa <= self.esb_lim_r_mesa:
+                        doc.append(NoEscape(r"M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)"))
+                        doc.append(NoEscape(r" = \frac{1}{1.10} \cdot \left( %.2f - \left( %.2f - %.2f \right) \cdot \frac{%.2f - %.2f}{%.2f - %.2f} \right)" % (self.mpl, self.mpl, self.mr, self.esb_mesa, self.esb_lim_p_mesa, self.esb_lim_r_mesa, self.esb_lim_p_mesa )))
+                        doc.append(NoEscape(r" = %.2f \  \text{kN} \cdot \text{cm} " %(self.mrd_flm)))
+                    else:
+                        doc.append(NoEscape(r"M_{cr} = \frac{0.69 \cdot E \cdot w_x}{\lambda^2} = \frac{0.69 \cdot %.0f \cdot %.2f}{%.2f^2} = %.2f \  \text{kN} \cdot \text{cm}" % (self.e, self.wx, self.esb_mesa, self.mrd_flm)))
+
+ 
+
         # Gerar o PDF
         doc.generate_pdf("memorial", clean_tex=False)
         messagebox.showinfo("Sucesso", "PDF gerado com sucesso!")

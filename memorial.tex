@@ -175,15 +175,11 @@ V_{rd} = \frac{V_{pl}}{1.10}  = \frac{202.86}{1.10} = 184.42   ~   kN%
 \label{sec:ClculodoMomentoFletor}%
 
 %
-\subsection{Cálculo do momento fletor resistente (Item D.2.1)}%
-\label{subsec:Clculodomomentofletorresistente(ItemD.2.1)}%
+\subsection{Cálculo do momento fletor resistente em X (Item D.2.1)}%
+\label{subsec:ClculodomomentofletorresistenteemX(ItemD.2.1)}%
 Momento fletor de plastificação: %
 \[%
-M_{pl} = z_x \cdot f_y = 96.40 \cdot 34.50 = 3325.80 \  \text{kN} \cdot \text{cm}^2%
-\]%
-Momento fletor residual: %
-\[%
-M_{r} = 0.7 \cdot w_x \cdot f_y = 0.7 \cdot 85.80 \cdot 34.50 = 2072.07 \  \text{kN} \cdot \text{cm}^2%
+M_{pl} = z_x \cdot f_y = 96.40 \cdot 34.50 = 3325.80 \  \text{kN} \cdot \text{cm}%
 \]%
 Flambagem local da alma {-} FLA:%
 \[%
@@ -199,7 +195,7 @@ Lambda R:%
 \]%
 Momento fletor resistente:%
 \[%
-M_{rd} = \frac{M_{pl}}{1.10} = \frac{3325.80}{1.10} = 3023.45 \  \text{kN} \cdot \text{cm}^2%
+M_{rd} = \frac{M_{pl}}{1.10} = \frac{3325.80}{1.10} = 3023.45 \  \text{kN} \cdot \text{cm}%
 \]%
 Flambagem local da mesa {-} FLM:%
 \[%
@@ -215,11 +211,62 @@ Lambda R:%
 \]%
 Momento fletor resistente:%
 \[%
-M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)  = \frac{1}{1.10} \cdot \left( 3325.80 - \left( 3325.80 - 2072.07 \right) \cdot \frac{10.20 - 9.15}{23.89 - 9.15} \right)  = 2941.88 \  \text{kN} \cdot \text{cm}^2 %
+M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)  = \frac{1}{1.10} \cdot \left( 3325.80 - \left( 3325.80 - 2072.07 \right) \cdot \frac{10.20 - 9.15}{23.89 - 9.15} \right)  = 2941.88 \  \text{kN} \cdot \text{cm} %
 \]%
 Flambagem lateral com torção {-} FLT:%
 \[%
-\lambda = \frac{L_b}{r_y} = \frac{300.00}{2.22} = 10.20 %
+\lambda = \frac{L_b}{r_y} = \frac{300.00}{2.22} = 135.14 %
+\]%
+Lambda P:%
+\[%
+\lambda_p = 1.76 \cdot \sqrt{\frac{E}{f_y}} = 1.76 \cdot \sqrt{\frac{20000}{34.50}} = 42.38%
+\]%
+Lambda R:%
+\[%
+\beta_1 = \frac{ \left( f_y - \sigma_r \right) \cdot w_x}{E \cdot i_t} = \frac{ \left( 34.50 - 0.3 \cdot 34.50 \right) \cdot 85.80}{20000.00 \cdot 1.72} = 0.06 %
+\]%
+\[%
+\lambda_r = \frac{1.38 \cdot C_b \sqrt{I_y \cdot I_t}}{r_y \cdot I_t \cdot \beta_1} \cdot \sqrt{1 + \sqrt{1 + \frac{27 \cdot C_w \cdot \beta_1^2}{C_b^2 \cdot I_y}}} = \frac{1.38 \cdot 1.00 \sqrt{82.00 \cdot 1.72}}{2.22 \cdot 1.72 \cdot 0.06} \cdot \sqrt{1 + \sqrt{1 + \frac{27 \cdot 4181 \cdot 0.06^2}{1.00^2 \cdot 82.00}}} = 132.32 %
+\]%
+Momento fletor resistente:%
+\[%
+M_{cr} = \frac{C_b \cdot \pi^2 \cdot E \cdot I_y}{L_b^2} \cdot \sqrt{ \frac{C_w}{I_y} \cdot \left( 1 + 0.0039 \cdot \frac {I_t \cdot L_b^2}{C_w}\right)} = \frac{1.00 \cdot \pi^2 \cdot 20000.00 \cdot 82.00}{300.00^2} \cdot \sqrt{ \frac{4181}{82.00} \cdot \left( 1 + 0.0039 \cdot \frac {1.72 \cdot 300.00^2}{4181}\right)}  = 1248.91 \  \text{kN} \cdot \text{cm} %
+\]
+
+%
+\subsection{Cálculo do momento fletor resistente em Y (Item D.2.1)}%
+\label{subsec:ClculodomomentofletorresistenteemY(ItemD.2.1)}%
+Flambagem local da alma {-} FLA:%
+\[%
+\lambda = \frac{d'}{t_w} = \frac{11.80}{0.43}  = 27.44 %
+\]%
+Lambda P:%
+\[%
+\lambda_p = 1.12 \cdot \sqrt{\frac{E}{f_y}} = 1.12 \cdot \sqrt{\frac{20000}{34.50}} = 26.97%
+\]%
+Lambda R:%
+\[%
+\lambda_r = 1.40 \cdot \sqrt{\frac{E}{f_y}} = 1.40 \cdot \sqrt{\frac{20000}{34.50}} = 33.71%
+\]%
+Momento fletor resistente:%
+\[%
+M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)  = \frac{1}{1.10} \cdot \left( 879.75 - \left( 879.75 - 565.80 \right) \cdot \frac{27.44 - 26.97}{33.71 - 26.97} \right)  = 779.65 \  \text{kN} \cdot \text{cm} %
+\]%
+Flambagem local da mesa {-} FLM:%
+\[%
+\lambda = \frac{b_f}{2 \cdot t_f} = \frac{10.00}{0.49}  = 10.20 %
+\]%
+Lambda P:%
+\[%
+\lambda_p = 0.38 \cdot \sqrt{\frac{E}{f_y}} = 0.38 \cdot \sqrt{\frac{20000}{34.50}} = 9.15%
+\]%
+Lambda R:%
+\[%
+\lambda_r = 0.83 \cdot \sqrt{\frac{E}{0.7 \cdot f_y}} = 0.83 \cdot \sqrt{\frac{20000}{0.7 \cdot 34.50}} = 23.89%
+\]%
+Momento fletor resistente:%
+\[%
+M_{rd} = \frac{1}{1.10} \cdot \left( M_{pl} - \left( M_{pl} - M_r \right) \cdot \frac{\lambda - \lambda_p}{\lambda_r - \lambda_p} \right)  = \frac{1}{1.10} \cdot \left( 879.75 - \left( 879.75 - 396.06 \right) \cdot \frac{10.20 - 9.15}{23.89 - 9.15} \right)  = 768.30 \  \text{kN} \cdot \text{cm} %
 \]
 
 %
